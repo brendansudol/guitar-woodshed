@@ -20,7 +20,7 @@ An interactive guitar course for people who can play a few songs and want to und
 - **Neck**: any scale or chord across the fretboard, colored by scale degree.
 - **Keys**: the seven chords of any key, common loops, and capo options.
 - **Songs**: type in a song's chords and it finds the key, rewrites the chords as numbers, names the loop and flags chords you don't know yet. Each song tracks how well you know it, toward a standing target of five songs from memory.
-- **Jam**: a backing band in any key, with the safe notes shown and the current chord's notes ringed.
+- **Jam**: a backing band in any key, with the safe notes shown and the current chord's notes ringed. Major, minor and blues loops, plus modal loops (Dorian, Mixolydian, Lydian, Phrygian).
 - **Train**: seven trainers.
   - Note Finder and Key Chords quizzes.
   - Chord Gym: a string-by-string chord check, and one-minute changes with benchmarks and your slowest pairs.

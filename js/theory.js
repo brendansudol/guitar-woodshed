@@ -163,7 +163,7 @@
     'Cmaj7': 'x32000', 'Dmaj7': 'xx0222', 'Gmaj7': '320002', 'Fmaj7': 'xx3210',
     'Dm7': 'xx0211', 'Em7': '022030',
     'Dsus2': 'xx0230', 'Dsus4': 'xx0233', 'Gsus4': '330013', 'Csus4': 'x33011', 'Csus2': 'x30033',
-    'Cadd9': 'x32030', 'Gadd9': '320203', 'Dadd9': 'xx0230', 'G6': '320000', 'C6': 'x32210', 'D6': 'xx0202',
+    'Cadd9': 'x32030', 'Gadd9': '320203', 'Dadd9': 'xx0252', 'G6': '320000', 'C6': 'x32210', 'D6': 'xx0202',
     'D5': 'xx023x',
   };
   const X = -1;
@@ -176,6 +176,10 @@
     sus4: (f) => [f, f + 2, f + 2, f + 2, f, f],
     dom7sus4: (f) => [f, f + 2, f, f + 2, f, f],
     five: (f) => [f, f + 2, f + 2, X, X, X],
+    add9: (f) => [f, f + 2, f + 4, f + 1, f, f],
+    six: (f) => [f, f + 2, f + 2, f + 1, f + 2, f],
+    min6: (f) => [f, f + 2, f + 2, f, f + 2, f],
+    nine: (f) => [f, f + 2, f, f + 1, f, f + 2],
   };
   const A_SHAPE = {
     maj: (a) => [X, a, a + 2, a + 2, a + 2, a],
@@ -190,6 +194,10 @@
     m7b5: (a) => [X, a, a + 1, a, a + 1, X],
     aug: (a) => [X, a, a + 3, a + 2, a + 2, a + 1],
     five: (a) => [X, a, a + 2, a + 2, X, X],
+    add9: (a) => [X, a, a + 2, a + 4, a + 2, a],
+    six: (a) => [X, a, a + 2, a + 2, a + 2, a + 2],
+    min6: (a) => [X, a, a + 2, a + 2, a + 1, a + 2],
+    nine: (a) => (a ? [X, a, a - 1, a, a, a] : [X, 0, 2, 4, 2, 3]),
   };
   const REDUCE = { add9: 'maj', six: 'maj', min6: 'min', nine: 'dom7' };
 

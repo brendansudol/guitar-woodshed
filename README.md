@@ -60,9 +60,24 @@ Then open http://localhost:4173.
 | `js/play.js` | Jam room and the original trainers. |
 | `js/drills.js` | Work It Out, interval and echo drills, Chord Gym. |
 | `js/finger.js` | Pick Lab and the demos for the fingerstyle side track. |
-| `scripts/` | `dev.js` (local server), `build.js` (writes `dist/`), `wrap.js` (shared HTML wrapper). |
+| `scripts/` | `dev.js` (local server), `build.js` (writes `dist/`), `wrap.js` (shared HTML wrapper), plus two sound tools described below. |
 
 `index.html` deliberately has no `<html>`, `<head>` or `<body>` tags so the same file can be published as a Claude artifact. `scripts/wrap.js` adds them for local preview and for the deployed site.
+
+## Checking the sound
+
+All audio is synthesized in the browser, so there are two tools for keeping it honest. Both are for development and are not part of the deployed site.
+
+- **Listen:** with `npm run dev` running, open `http://localhost:4173/scripts/sound-check.html`. It plays each string and a few chords as they were before the audio audit, as they are now, and as a recording of a real acoustic guitar.
+- **Measure:** `scripts/audio-audit.js` renders the app's audio offline and measures it. In the browser console on the local site:
+
+  ```js
+  eval(await (await fetch('/scripts/audio-audit.js')).text());
+  await AUDIT.noteReport(); // tuning, decay and brightness of each string
+  await AUDIT.mixReport();  // peak and average level of every kind of playback, and whether anything clips
+  ```
+
+Targets the current sound meets: every note within 2 cents of pitch, no clipped samples in any mix, and bass and drums sitting below the guitar.
 
 ## Deploying
 

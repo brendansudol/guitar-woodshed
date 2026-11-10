@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Woodshed sound check</title>
+<style>
+  :root { --bg: #f1f2f4; --fg: #17202b; --muted: #5d6875; --line: #c9d1d6; --accent: #dc3d26; --surface: #fafbfb; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #12161b; --fg: #eef1f4; --muted: #9aa5b1; --line: #2c343d; --surface: #1a2027; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px 16px 60px; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  main { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+  h1 { margin: 0; font-size: 30px; line-height: 1.1; }
+  h2 { margin: 0 0 8px; font-size: 19px; }
+  p { margin: 0; color: var(--muted); max-width: 64ch; }
+  .rows { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+  .row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .row b { font-size: 17px; }
+  .row small { color: var(--muted); display: block; }
+  button { padding: 8px 13px; border: 1.5px solid var(--fg); border-radius: 4px; background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--fg); color: var(--bg); }
+  button.new { border-color: var(--accent); background: var(--accent); color: #fff; }
+  button.real { border-style: dashed; }
+  button[disabled] { opacity: .4; cursor: default; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr 1fr 1fr; } .row > div { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>Sound check</h1>
+    <p>Listen to each sound three ways: the app before the audit, the app now, and a recording of a real acoustic guitar. Headphones or decent speakers will tell you more than a phone speaker. “Real” plays a recording from the open tonejs-instruments sample set, fetched from the internet when you press it.</p>
+  </div>
+  <section><h2>Single strings</h2><div class="rows" id="notes"></div></section>
+  <section><h2>Strummed chords</h2><div class="rows" id="chords"></div></section>
+  <section><h2>The same note against the tuner tone</h2>
+    <p>The tone is exactly in tune. Before the audit the plucked string sat a little sharp of it, which you hear as a slow wobble. Now the two should sit still together.</p>
+    <div class="rows" id="tuner"></div></section>
+</main>
+
+<script>window.W = {};</script>
+<script src="/js/theory.js"></script>
+<script src="/js/audio.js"></script>
+<script>
+(function () {
+  const T = W.T, A = W.audio;
+  const REAL = 'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-acoustic/';
+  const NOTES = [[40, 'Low E', 'E2'], [45, 'A', 'A2'], [50, 'D', 'D3'], [55, 'G', 'G3'], [59, 'B', 'B3'], [64, 'High E', 'E4']];
+
+  /* The string sound as it was before the audit, copied unchanged (including its tuning error). */
+  const oldBufs = {};
+  function oldBuffer(ctx, midi) {
+    if (oldBufs[midi]) return oldBufs[midi];
+    const sr = ctx.sampleRate, freq = 440 * Math.pow(2, (midi - 69) / 12);
+    const N = Math.max(2, Math.round(sr / freq - 0.5)), actual = sr / (N + 0.5), len = Math.floor(sr * 2.6);
+    const buf = ctx.createBuffer(1, len, sr), out = buf.getChannelData(0), ring = new Float32Array(N);
+    let prev = 0;
+    for (let i = 0; i < N; i++) { const n = Math.random() * 2 - 1; prev = prev * 0.45 + n * 0.55; ring[i] = prev; }
+    const decay = 0.9945 + 0.0045 * Math.min(1, Math.max(0, (midi - 40) / 34));
+    let idx = 0;
+    for (let i = 0; i < len; i++) { const nxt = idx + 1 === N ? 0 : idx + 1, v = ring[idx]; ring[idx] = decay * 0.5 * (v + ring[nxt]); out[i] = v; idx = nxt; }
+    const fade = Math.floor(sr * 0.15);
+    for (let i = 0; i < fade; i++) out[len - 1 - i] *= i / fade;
+    return (oldBufs[midi] = { buf, rate: freq / actual });
+  }
+  let live = [];
+  function hush() { A.stop(); A.toneStop(); live.forEach((s) => { try { s.stop(); } catch (e) {} }); live = []; }
+  function oldPluck(ctx, midi, when, vel) {
+    const sb = oldBuffer(ctx, midi), src = ctx.createBufferSource(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = sb.buf; src.playbackRate.value = sb.rate;
+    lp.type = 'lowpass'; lp.frequency.value = 1400 + vel * 4200;
+    g.gain.value = vel * 0.4 * 0.85;
+    src.connect(lp); lp.connect(g); g.connect(ctx.destination);
+    src.start(when); live.push(src);
+  }
+  const realCache = {};
+  async function real(ctx, name, btn) {
+    btn.disabled = true;
+    try {
+      if (!realCache[name]) realCache[name] = await ctx.decodeAudioData(await (await fetch(REAL + name + '.mp3')).arrayBuffer());
+      const src = ctx.createBufferSource(), g = ctx.createGain();
+      src.buffer = realCache[name]; g.gain.value = 0.45;
+      src.connect(g); g.connect(ctx.destination); src.start(); live.push(src);
+    } catch (e) { btn.textContent = 'Unavailable'; return; }
+    btn.disabled = false;
+  }
+  const row = (title, sub, buttons) => {
+    const el = document.createElement('div');
+    el.className = 'row';
+    el.innerHTML = `<div><b>${title}</b><small>${sub}</small></div>`;
+    buttons.forEach(([label, cls, fn]) => { const b = document.createElement('button'); b.textContent = label; b.className = cls; b.onclick = () => { const ctx = A.ensure(); hush(); fn(ctx, b); }; el.appendChild(b); });
+    return el;
+  };
+  NOTES.forEach(([midi, name, file], s) => {
+    document.getElementById('notes').appendChild(row(name + ' string', 'open', [
+      ['Before', '', (ctx) => oldPluck(ctx, midi, ctx.currentTime + 0.03, 0.9)],
+      ['Now', 'new', () => A.playNote(s, 0)],
+      ['Real', 'real', (ctx, b) => real(ctx, file, b)],
+    ]));
+  });
+  ['G', 'C', 'D', 'Em', 'Am', 'F'].forEach((name) => {
+    const ch = T.parseChord(name), midis = T.voicingMidis(T.voicing(ch));
+    document.getElementById('chords').appendChild(row(name, 'one slow strum', [
+      ['Before', '', (ctx) => { let i = 0; midis.forEach((m) => { if (m != null) oldPluck(ctx, m, ctx.currentTime + 0.03 + i++ * 0.028, 0.8); }); }],
+      ['Now', 'new', () => A.strumChord(ch)],
+    ]));
+  });
+  [[45, 'A string'], [64, 'High E string']].forEach(([midi, name]) => {
+    document.getElementById('tuner').appendChild(row(name, 'tuner tone with the plucked string', [
+      ['Before', '', (ctx) => { A.tone(midi, true); oldPluck(ctx, midi, ctx.currentTime + 0.4, 0.9); oldPluck(ctx, midi, ctx.currentTime + 2.2, 0.9); }],
+      ['Now', 'new', (ctx) => { A.tone(midi, true); A.pluck(midi, ctx.currentTime + 0.4, 0.9); A.pluck(midi, ctx.currentTime + 2.2, 0.9); }],
+      ['Stop', '', () => {}],
+    ]));
+  });
+})();
+</script>
+</body>
+</html>

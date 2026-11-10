@@ -306,16 +306,18 @@
       </div>`;
   }
 
+  W.TRAIN = { order: ['notes', 'keys', 'ear', 'strum'], labels: { notes: 'Note Finder', keys: 'Key Chords', ear: 'Ear', strum: 'Strum Lab' }, fns: { notes: notesTab, keys: keysTab, ear: earTab, strum: strumTab } };
   W.VIEWS.train = function () {
     const tab = U.tr.tab;
-    const tabs = [['notes', 'Note Finder'], ['keys', 'Key Chords'], ['ear', 'Ear'], ['strum', 'Strum Lab']];
-    const body = { notes: notesTab, keys: keysTab, ear: earTab, strum: strumTab }[tab]();
+    const TR = W.TRAIN, tabs = TR.order.map((k) => [k, TR.labels[k]]);
+    const body = (TR.fns[tab] || TR.fns.notes)();
     return `<div class="head"><span class="eyebrow">Trainers</span><h1>Three minutes, every day</h1></div>
       <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="tab${k === tab ? ' on' : ''}" data-act="trTab" data-v="${k}">${l}</button>`).join('')}</div>
       <div class="stack" style="gap:20px">${body}</div>`;
   };
 
   function newRun() { return { i: 0, n: 10, score: 0, q: null, fb: null, done: false }; }
+  W.trn = { finish, roundBar, roundDone, newRun, later, bump, pick, stopTimer: () => clearTimeout(timer) };
   Object.assign(W.ACT, {
     trTab(el) { A.stop(); clearTimeout(timer); U.tr.tab = el.dataset.v; W.render(); },
     noteString(el) {

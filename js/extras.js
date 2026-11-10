@@ -10,7 +10,7 @@
     2: { text: 'Score 8 out of 10 in Key Chords, on two different days.', need: 2, unit: 'days', have: () => days('keys8'), go: { hash: 'train', tab: 'keys', label: 'Key Chords' } },
     3: { text: 'Decode three of your own songs in the Songbook.', need: 3, unit: 'songs', have: () => S.songs.filter((s) => !s.example).length, go: { hash: 'songs', label: 'Songbook' } },
     4: { text: 'Reach 30 clean changes in one minute between any two chords.', need: 30, unit: 'changes', have: () => Math.max(0, ...Object.values(S.changes)), go: { lesson: '4-3', label: 'One-minute changes' } },
-    5: { text: 'Score 9 out of 10 in the Ear Trainer, on two different days.', need: 2, unit: 'days', have: () => days('ear9'), go: { hash: 'train', tab: 'ear', label: 'Ear Trainer' } },
+    5: { text: 'Work out five loops by ear in Work It Out, at any level.', need: 5, unit: 'loops', have: () => (S.drills.work || [0])[0], go: { hash: 'train', tab: 'work', label: 'Work It Out' } },
     6: { text: 'Play in the Jam Room on five different days.', need: 5, unit: 'days', have: () => Object.values(S.log).filter((d) => d.j).length, go: { hash: 'jam', label: 'Jam Room' } },
     7: { text: 'Score 9 out of 10 in Note Finder on strings 6 and 5 with sharps switched on.', need: 1, unit: 'round', have: () => days('notes65s'), go: { hash: 'train', tab: 'notes', label: 'Note Finder' } },
   };

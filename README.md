@@ -6,7 +6,7 @@ An interactive guitar course for people who can play a few songs and want to und
 
 ## What's in it
 
-- **Today**: a 20-minute daily plan in four blocks (warm up, learn, apply to a song you know, jam), with a streak.
+- **Today**: a 20-minute daily plan in four blocks (warm up, learn, songs, jam), with a streak. The warm-up rotates through neck, rhythm, ear and chord drills each day, and the song block is the biggest.
 - **Path**: 24 short lessons, each with a playable demo, an on-guitar assignment and a quick check. A day-one lesson decodes one of your own songs, then seven stages follow. Each stage ends with a "move on when" target tied to your drill scores, so finishing the reading is not the same as finishing the stage.
   1. The map (note names on the neck)
   2. Where chords come from
@@ -17,9 +17,14 @@ An interactive guitar course for people who can play a few songs and want to und
   7. Any chord, anywhere
 - **Neck**: any scale or chord across the fretboard, coloured by scale degree.
 - **Keys**: the seven chords of any key, common progressions, and capo options.
-- **Songs**: type in a song's chords and it finds the key, rewrites the chords as numbers, names the pattern and flags chords you don't know yet.
+- **Songs**: type in a song's chords and it finds the key, rewrites the chords as numbers, names the pattern and flags chords you don't know yet. Each song tracks how well you know it, toward a standing target of five songs from memory.
 - **Jam**: a backing band in any key, with the safe notes shown and the current chord's notes ringed.
-- **Train**: note finder, key-chord quiz, ear trainer and strum lab.
+- **Train**: six trainers.
+  - Note Finder and Key Chords quizzes.
+  - Chord Gym: a string-by-string chord check, and one-minute changes with benchmarks and your slowest pairs.
+  - Ear: name the chord, find the second note of an interval on the neck, and echo a short phrase back.
+  - Work It Out: a band plays a loop in a hidden key; you find the home note, then name each chord.
+  - Strum Lab.
 - **Tuner**: reference tones for each string, plus a listening tuner that uses the microphone (standalone site only).
 - **Guide**: a one-minute "how to read this app" page and a glossary. Dotted-underlined words in lessons can be tapped for a definition.
 
@@ -49,7 +54,8 @@ Then open http://localhost:4173.
 | `js/extras.js` | Guide, tuner and the per-stage targets. |
 | `js/learn.js` | Today, Path and the lesson widgets. |
 | `js/tools.js` | Neck, Keys and Songs. |
-| `js/play.js` | Jam room and trainers. |
+| `js/play.js` | Jam room and the original trainers. |
+| `js/drills.js` | Work It Out, interval and echo drills, Chord Gym. |
 | `scripts/` | `dev.js` (local server), `build.js` (writes `dist/`), `wrap.js` (shared HTML wrapper). |
 
 `index.html` deliberately has no `<html>`, `<head>` or `<body>` tags so the same file can be published as a Claude artifact. `scripts/wrap.js` adds them for local preview and for the deployed site.

@@ -12,7 +12,7 @@
       { id: 'ex3', example: true, title: 'Knockin’ on Heaven’s Door', artist: 'Bob Dylan', key: null, text: 'Verse: G D Am Am\nG D C C' },
     ],
     lessons: {}, prac: {}, log: {}, changes: {}, goals: {}, guideSeen: false,
-    drills: { notes: {}, keys: [0, 0], ear: [0, 0], best: {} },
+    drills: { notes: {}, keys: [0, 0], ear: [0, 0], ivl: [0, 0], echo: [0, 0], work: [0, 0], best: {} },
   });
 
   const S = (W.S = DEFAULT());
@@ -183,6 +183,7 @@
   Object.assign(W.ACT, {
     go(el) {
       if (el.dataset.tab) U.tr.tab = el.dataset.tab;
+      if (el.dataset.mode) U.tr.ear.mode = el.dataset.mode;
       if (el.dataset.lesson !== undefined) U.lesson = el.dataset.lesson || null;
       go(el.dataset.hash);
     },

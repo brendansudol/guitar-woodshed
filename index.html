@@ -276,6 +276,24 @@ button.term:hover { text-decoration-color: var(--accent); }
 .tuner.idle .meter-needle, .tuner.idle #tu-note { opacity: .2; }
 .tile.heard { border-color: var(--good); box-shadow: 0 0 0 2px var(--good); }
 @media (prefers-reduced-motion: no-preference) { .meter-needle { transition: left .09s linear; } }
+/* Work It Out bars, chord check rows, benchmark bar */
+.barrow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-width: 560px; }
+.barbox { display: flex; flex-direction: column; align-items: center; gap: 5px; min-height: 92px; padding: 9px 6px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 4px; }
+.barbox small { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.barbox b { font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1; }
+button.barbox:hover { border-color: var(--fg); }
+.barbox.sel { border-color: var(--fg); box-shadow: 0 0 0 2px var(--fg); }
+.barbox.now { background: var(--fg); color: var(--bg); }
+.barbox.now small { color: var(--bg); }
+.barbox.right { border-color: var(--good); box-shadow: 0 0 0 2px var(--good); }
+.barbox.wrong { border-color: var(--bad); box-shadow: 0 0 0 2px var(--bad); }
+.cc { display: flex; flex-direction: column; }
+.cc-row { display: grid; grid-template-columns: 44px minmax(0, 110px) minmax(0, 1fr); gap: 10px; padding: 6px 8px; border-top: 1px solid var(--line); font-size: 14.5px; border-radius: 2px; }
+.cc-row.now { background: var(--fg); color: var(--bg); }
+.cc-row.now .muted { color: var(--bg); }
+.bar.marks { position: relative; height: 10px; overflow: visible; }
+.bar.marks i { border-radius: 3px; }
+.bar.marks::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; background: var(--fg); }
 </style>
 
 <div class="app">
@@ -315,4 +333,5 @@ button.term:hover { text-decoration-color: var(--accent); }
 <script src="js/learn.js"></script>
 <script src="js/tools.js"></script>
 <script src="js/play.js"></script>
+<script src="js/drills.js"></script>
 <script>W.boot();</script>

@@ -118,6 +118,27 @@
     }).join('')}</div>`;
   }
 
+  /* A picking pattern over one chord, laid out like tab: a row per string (thin string on top), a column per eighth note.
+     The letter in each dot is the finger. Red dots are the chord's root. */
+  function pickGrid(ch, patKey) {
+    const pat = W.audio.PICKS[patKey], v = T.voicing(ch), map = T.pickMap(ch, v, pat.alt);
+    const n = pat.p.length, six = n === 6;
+    const counts = six ? ['1', '2', '3', '4', '5', '6'] : ['1', '&', '2', '&', '3', '&', '4', '&'];
+    const letter = { R: 'p', A: 'p', i: 'i', m: 'm', a: 'a' };
+    let h = `<div class="pick" style="--n:${n}" role="img" aria-label="${esc(pat.name)} over ${esc(ch.name)}">`;
+    for (let s = 5; s >= 0; s--) {
+      const muted = v.frets[s] < 0;
+      h += `<span class="pick-s${muted ? ' off' : ''}">${muted ? '×' : T.SHARP[T.TUNING[s] % 12]}</span>`;
+      pat.p.forEach((hit, i) => {
+        const voice = hit ? hit.split('').find((x) => map[x] === s) : null;
+        const root = voice && (T.TUNING[s] + v.frets[s]) % 12 === ch.root;
+        h += `<span class="pick-cell${muted ? ' off' : ''}${s === 5 ? ' top' : s === 0 ? ' bottom' : ''}" data-step="${i}">${voice && !muted ? `<b class="pick-dot${root ? ' root' : ''}">${letter[voice]}</b>` : ''}</span>`;
+      });
+    }
+    h += '<span></span>' + counts.map((c, i) => `<span class="pick-count${i % (six ? 3 : 2) ? '' : ' beat'}" data-step="${i}">${c}</span>`).join('');
+    return h + '</div>';
+  }
+
   const degTag = (num, deg) => `<span class="deg d${deg}">${esc(P(num))}</span>`;
 
   /* A chord as a tappable tile: name, numeral in its degree colour. */
@@ -142,5 +163,5 @@
     }).join('')}</div>`;
   }
 
-  W.R = { esc, fretboard, scaleMarks, chordBox, strumGrid, degTag, chordTile, playBtn, chips };
+  W.R = { esc, fretboard, scaleMarks, chordBox, strumGrid, pickGrid, degTag, chordTile, playBtn, chips };
 })();

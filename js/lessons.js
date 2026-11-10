@@ -331,4 +331,89 @@
       ],
     },
   ];
+
+  /* Side tracks run alongside the main path. They never hold it up, and they don't count toward its totals. */
+  W.TRACKS = [
+    { n: 'F', mark: '+', title: 'Fingerstyle', why: 'Picking single strings with the thumb and fingers. The fretting hand does what it already does. The picking hand has to know which string holds the root and where the tune is, so this track leans on stages 1 and 2 and is best started after them.' },
+  ];
+  W.SIDE = [
+    {
+      id: 'f-1', stage: 'F', side: true, mins: 6, title: 'A job for every finger',
+      body: `<p>Fingerstyle looks like ten things happening at once. It is four fingers with one job each.</p>
+<p>The picking-hand fingers have letter names, p, i, m and a: <strong>p</strong> is the thumb, <strong>i</strong> the index, <strong>m</strong> the middle, <strong>a</strong> the ring finger. Index, middle and ring each own one thin string: <strong>i on the G string, m on the B string, a on the high E string</strong>. They stay there.</p>
+<p>The <strong>thumb owns the three thick strings</strong>, and it is the only one that has to think. It plays the root of the chord. For G that is the low E string, for C the A string, for D the D string. You learned where those roots are in stage 1. This is where it pays off.</p>
+<p>How to hold the hand is easier to watch than to read, so find one short video on fingerpicking hand position before you start. Then let each finger rest on its string and pluck by closing the hand gently, as if making a loose fist.</p>`,
+      w: { type: 'pick', one: true, chords: 'G C D Em Am', patterns: ['roll'], bpm: 56 },
+      practice: ['Hold a C chord. Rest the thumb on the A string and i, m, a on the G, B and high E strings. Pluck them one at a time, slowly, eight times round.', 'Same on G, then D. The fingers stay on their strings. Only the thumb moves, to wherever the root is.', 'For every chord you know, say which string the thumb starts on before you play it.'],
+      tool: { label: 'Open Pick Lab', hash: 'train' },
+      quiz: [
+        { q: 'Which finger is “m”?', a: ['The thumb', 'The middle finger', 'The little finger'], c: 1 },
+        { q: 'On a C chord, which string does the thumb play?', a: ['The low E string', 'The A string, where the root is', 'The G string'], c: 1 },
+        { q: 'When the chord changes, which part of the picking hand moves to a new string?', a: ['Only the thumb', 'All four fingers', 'None of them'], c: 0 },
+      ],
+    },
+    {
+      id: 'f-2', stage: 'F', side: true, mins: 7, title: 'Arpeggios: a chord, one note at a time',
+      body: `<p>An arpeggio is a chord played one note at a time. Your fretting hand holds exactly the shape it holds when you strum. So every song in your Songbook is already a fingerstyle song: same chords, different right hand.</p>
+<p>Picking patterns work like strumming patterns. There is one steady stream of eighth notes, and a pattern is a choice of which finger plays each one. Three patterns cover most slow songs: the <strong>forward roll</strong>, the <strong>eight-note roll</strong>, and <strong>up and back</strong>, which has six notes to the bar.</p>
+<p>The rule from the rhythm stage carries over: <strong>the picking hand never waits for the fretting hand.</strong> The thumb note comes first in the bar, so in a change, land the finger holding the root first and let the rest of the shape arrive a moment later. Nobody hears the difference.</p>
+<p>A lot of gentle acoustic ballads, Falling Slowly among them, are little more than this: a slow, even pattern over a few open chords.</p>`,
+      w: { type: 'pick', chords: 'G Em C D', patterns: ['roll', 'ballad', 'six'], bpm: 60 },
+      practice: ['Forward roll on one chord at 60 until every note is the same volume. Then over two chords.', 'Take a song from your Songbook and press “Fingerpick it”. Play the first line with the forward roll.', 'In each change, put down the finger that holds the root first.'],
+      tool: { label: 'Open Pick Lab', hash: 'train' },
+      quiz: [
+        { q: 'An arpeggio is…', a: ['a chord played one note at a time', 'a very fast strum', 'a scale with five notes'], c: 0 },
+        { q: 'To fingerpick a song you already strum, the fretting hand…', a: ['learns new shapes', 'plays the same chords as before', 'moves up the neck'], c: 1 },
+        { q: 'In a chord change, which finger should land first?', a: ['The one on the thinnest string', 'The one holding the root, because the thumb plays it first', 'It makes no difference'], c: 1 },
+      ],
+    },
+    {
+      id: 'f-3', stage: 'F', side: true, mins: 8, title: 'The thumb keeps time',
+      body: `<p>In the patterns so far the thumb plays once or twice a bar. In the style behind most folk and country fingerpicking it plays <strong>on every beat</strong>, rocking between the root and a second bass string. That is an alternating bass, and it makes one guitar sound like two: a bass player underneath, a guitarist on top.</p>
+<p>The second bass note is another note of the same chord. For chords with the root on the low E or A string, the thumb rocks over to the D string. For D-type chords it rocks between the D and G strings, and the fingers shift up one string to make room.</p>
+<p>Add fingers in the gaps between thumb strokes and you have Travis picking. Build it in three steps, and do not rush the first:</p>
+<ol><li><strong>Thumb alone</strong>, until you can talk while it plays.</li>
+<li><strong>Thumb and pinch:</strong> a finger plucks together with the thumb on beats 1 and 3.</li>
+<li><strong>The full pattern:</strong> fingers fall between the beats while the thumb carries on as if nothing has happened.</li></ol>
+<p>If the thumb stumbles when the fingers join in, go back a step. The thumb has to be automatic before anything can sit on top of it.</p>`,
+      w: { type: 'pick', chords: 'C G Am F', patterns: ['thumb', 'pinch', 'travis'], bpm: 56 },
+      practice: ['Thumb alone over C and G at 60, two minutes a day, until you can hold a conversation over it.', 'Thumb and pinch over the same two chords.', 'The Travis pattern on one chord. Add a second chord only when the first is even.'],
+      tool: { label: 'Open Pick Lab', hash: 'train' },
+      quiz: [
+        { q: 'In an alternating bass, the thumb plays…', a: ['once a bar', 'on every beat', 'only with the fingers'], c: 1 },
+        { q: 'What do you practise first?', a: ['The full pattern, slowly', 'The fingers on their own', 'The thumb alone, until it is automatic'], c: 2 },
+        { q: 'Your thumb stumbles when you add the fingers. You should…', a: ['go back a step', 'speed up', 'drop the thumb and keep the fingers'], c: 0 },
+      ],
+    },
+    {
+      id: 'f-4', stage: 'F', side: true, mins: 8, title: 'Two notes that climb the neck',
+      body: `<p>Some of the best-known fingerstyle parts use no chord shapes at all. They use <strong>two notes at a time</strong>: a bass note, and the note ten scale steps above it. That pair is called a 10th. It is the root and the 3rd of a chord with the 3rd lifted an octave, and those two notes are enough for your ear to hear the whole chord.</p>
+<p>Put the bass note on the A string and the upper note on the B string, and there are only two shapes. <strong>Wide</strong>, two frets apart, is a major chord. <strong>Narrow</strong>, one fret apart, is a minor chord.</p>
+<p>Now walk the bass note up the major scale and let the shape follow the chord family from stage 2: major, minor, minor, major, major, minor. You are playing I, ii, iii, IV, V, vi as a melody and a bass line at once.</p>
+<p>This is the engine of Blackbird: pairs like these climbing in the key of G, with the open G string ringing between them. Once you can see the pairs, you can work that song out from the recording instead of copying it fret by fret.</p>`,
+      w: { type: 'tenths' },
+      practice: ['In C, play the six pairs up and back: thumb on the A string, a finger on the B string, plucked together.', 'Add the open G string between each pair, played by the index finger.', 'Say the chord number out loud as you land on each pair. Notice the wide shapes are the I, IV and V.'],
+      quiz: [
+        { q: 'In a major pair on the A and B strings, the B-string note is…', a: ['on the same fret', 'one fret higher', 'two frets higher'], c: 2 },
+        { q: 'Each pair is which two notes of its chord?', a: ['The root and the 5th', 'The root and the 3rd', 'The 3rd and the 5th'], c: 1 },
+        { q: 'Walking the pairs up a key, which ones use the narrow, minor shape?', a: ['ii, iii and vi', 'I, IV and V', 'All of them'], c: 0 },
+      ],
+    },
+    {
+      id: 'f-5', stage: 'F', side: true, mins: 8, title: 'The tune lives inside the chord',
+      body: `<p>The step from picking patterns to playing actual songs is this: <strong>the highest note you play is heard as the melody.</strong> So hold a chord, keep the thumb on the root, and change only the top note.</p>
+<p>You rarely have to leave the shape. Around every open chord there are scale notes one finger away: lift a finger, or add the little finger. The demo below shows them for each shape.</p>
+<p>It also explains some chord names you have seen in charts. Hold D and add your little finger at fret 3 of the high E string: that is <strong>Dsus4</strong>. Lift the finger from that string altogether: <strong>Dsus2</strong>. Those names usually mean a melody note is passing through a chord, and not that there is a new chord to learn.</p>
+<p>Here Comes the Sun works this way. It is played from D-family shapes with a capo on fret 7, which is why it sounds in A, and its tune is picked out of the top notes of those shapes.</p>`,
+      w: { type: 'topnotes' },
+      practice: ['Hold D. Thumb on the D string, then play the high E string at frets 2, 3, 2, 0. That is a melody over a chord.', 'Do the same over C using the B string: frets 1, 3, 1, 0.', 'Pick a tune you can hum. Find its first three notes on the top two strings while holding the song’s first chord.'],
+      tool: { label: 'Open Pick Lab', hash: 'train' },
+      quiz: [
+        { q: 'Which note does a listener hear as the melody?', a: ['The lowest', 'The highest', 'The loudest thumb note'], c: 1 },
+        { q: 'Dsus4 is a D chord with…', a: ['the 3rd swapped for the 4th', 'an extra bass note', 'every string one fret higher'], c: 0 },
+        { q: 'D shapes with a capo on fret 7 sound in the key of…', a: ['G', 'A', 'E'], c: 1 },
+      ],
+    },
+  ];
+  W.ALL = W.LESSONS.concat(W.SIDE);
 })();

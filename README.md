@@ -15,16 +15,19 @@ An interactive guitar course for people who can play a few songs and want to und
   5. Ears
   6. Riffing
   7. Any chord, anywhere
+
+  Plus a **fingerstyle side track** of five lessons that runs alongside the path without holding it up: a job for every finger, arpeggios, the alternating thumb, pairs of notes that climb the neck, and finding a tune inside a chord shape.
 - **Neck**: any scale or chord across the fretboard, coloured by scale degree.
 - **Keys**: the seven chords of any key, common progressions, and capo options.
 - **Songs**: type in a song's chords and it finds the key, rewrites the chords as numbers, names the pattern and flags chords you don't know yet. Each song tracks how well you know it, toward a standing target of five songs from memory.
 - **Jam**: a backing band in any key, with the safe notes shown and the current chord's notes ringed.
-- **Train**: six trainers.
+- **Train**: seven trainers.
   - Note Finder and Key Chords quizzes.
   - Chord Gym: a string-by-string chord check, and one-minute changes with benchmarks and your slowest pairs.
   - Ear: name the chord, find the second note of an interval on the neck, and echo a short phrase back.
   - Work It Out: a band plays a loop in a hidden key; you find the home note, then name each chord.
   - Strum Lab.
+  - Pick Lab: fingerpicking patterns (rolls, alternating thumb, Travis) shown as a string-by-string grid over any chords, with the thumb placed on each chord's root automatically. Song cards have a "Fingerpick it" button that loads a song into it.
 - **Tuner**: reference tones for each string, plus a listening tuner that uses the microphone (standalone site only).
 - **Guide**: a one-minute "how to read this app" page and a glossary. Dotted-underlined words in lessons can be tapped for a definition.
 
@@ -56,6 +59,7 @@ Then open http://localhost:4173.
 | `js/tools.js` | Neck, Keys and Songs. |
 | `js/play.js` | Jam room and the original trainers. |
 | `js/drills.js` | Work It Out, interval and echo drills, Chord Gym. |
+| `js/finger.js` | Pick Lab and the demos for the fingerstyle side track. |
 | `scripts/` | `dev.js` (local server), `build.js` (writes `dist/`), `wrap.js` (shared HTML wrapper). |
 
 `index.html` deliberately has no `<html>`, `<head>` or `<body>` tags so the same file can be published as a Claude artifact. `scripts/wrap.js` adds them for local preview and for the deployed site.

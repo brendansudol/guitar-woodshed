@@ -88,6 +88,7 @@
       <div class="row"><span class="label">How well do you know it?</span>${chips([{ v: 'learn', l: 'Learning' }, { v: 'play', l: 'Can play through' }, { v: 'mem', l: 'From memory' }], song.status || 'learn', 'songStatus', `data-id="${song.id}"`)}</div>
       <div class="row">${R.playBtn(id, 'Play', 'sm')}
         <button type="button" class="btn sm" data-act="jamSong" data-id="${song.id}">Jam on it</button>
+        <button type="button" class="btn sm" data-act="pickSong" data-id="${song.id}">Fingerpick it</button>
         <span class="row" style="gap:4px"><button type="button" class="btn sm quiet" data-act="songTr" data-id="${song.id}" data-d="-1" aria-label="Down one key">−</button>
           <span class="mono small" style="min-width:86px;text-align:center">${an.tr === 0 ? 'original key' : (an.tr > 0 ? '+' : '') + an.tr + ' frets'}</span>
           <button type="button" class="btn sm quiet" data-act="songTr" data-id="${song.id}" data-d="1" aria-label="Up one key">+</button></span>

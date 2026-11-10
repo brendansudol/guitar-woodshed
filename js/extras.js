@@ -13,12 +13,13 @@
     5: { text: 'Work out five loops by ear in Work It Out, at any level.', need: 5, unit: 'loops', have: () => (S.drills.work || [0])[0], go: { hash: 'train', tab: 'work', label: 'Work It Out' } },
     6: { text: 'Play in the Jam Room on five different days.', need: 5, unit: 'days', have: () => Object.values(S.log).filter((d) => d.j).length, go: { hash: 'jam', label: 'Jam Room' } },
     7: { text: 'Score 9 out of 10 in Note Finder on strings 6 and 5 with sharps switched on.', need: 1, unit: 'round', have: () => days('notes65s'), go: { hash: 'train', tab: 'notes', label: 'Note Finder' } },
+    F: { label: 'This track has stuck when', text: 'You have played along in Pick Lab for a minute or more, on five different days.', need: 5, unit: 'days', have: () => days('pick'), go: { hash: 'train', tab: 'pick', label: 'Pick Lab' } },
   };
   function goal(n) {
     const g = GOALS[n];
     if (!g) return null;
     const have = g.have();
-    return { n, text: g.text, need: g.need, unit: g.unit, have: Math.min(have, g.need), met: have >= g.need, go: g.go };
+    return { n, label: g.label || 'Move on when', text: g.text, need: g.need, unit: g.unit, have: Math.min(have, g.need), met: have >= g.need, go: g.go };
   }
   function goalHit(key) {
     const a = (S.goals[key] = S.goals[key] || []), d = W.dayKey();
@@ -38,7 +39,7 @@
   function goalBlock(n) {
     const g = goal(n);
     if (!g) return '';
-    return `<div class="goal${g.met ? ' met' : ''}"><span class="label">${g.met ? 'Target reached' : 'Move on when'}</span>
+    return `<div class="goal${g.met ? ' met' : ''}"><span class="label">${g.met ? 'Target reached' : g.label}</span>
       <p>${esc(g.text)}</p>
       <div class="row"><div class="bar"><i style="width:${(g.have / g.need) * 100}%"></i></div><span class="mono small">${g.have} of ${g.need} ${g.unit}</span>${g.met ? '' : goBtn(g.go)}</div></div>`;
   }
@@ -73,10 +74,11 @@
         'Chords get the same numbers, written as <strong>roman numerals</strong>. Capitals are major chords, lower-case are minor. In G: G is I, C is IV, D is V, Em is vi.',
         'You don’t need to understand why yet. Stage 2 explains where the numbers come from. For now, read them as labels that stay the same when the key changes.',
       ])}
-      ${part(4, 'Rings, dashes and arrows', `<div class="stack"><div class="tiles">${R.chordTile(T.parseChord('Bm'), 7, { cls: 'new' })}</div>${R.strumGrid('faithful')}</div>`, [
+      ${part(4, 'Rings, dashes and arrows', `<div class="stack"><div class="tiles">${R.chordTile(T.parseChord('Bm'), 7, { cls: 'new' })}</div>${R.strumGrid('faithful')}${R.pickGrid(T.parseChord('C'), 'roll')}</div>`, [
         'A <strong>ring</strong> around a note (see the G on the neck in part 1) means it belongs to the chord playing right now. Good notes to land on.',
         'A <strong>dashed outline</strong> on a chord means it isn’t in your list of chords yet. Change the list on the Today screen.',
         'In strumming patterns, <strong>solid arrows</strong> hit the strings. Faint arrows are your hand passing by without touching them.',
+        'In picking patterns, <strong>each row is a string and each dot is one pluck</strong>, thinnest string on top. The letter is the finger: p thumb, i index, m middle, a ring.',
       ])}
       </div>
       <div class="row"><button type="button" class="btn primary big" data-act="guideDone">Got it</button></div>

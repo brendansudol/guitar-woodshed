@@ -172,14 +172,29 @@
     whole: { name: 'One strum per bar', p: ['D', 0, 0, 0, 0, 0, 0, 0], say: 'One strum, let it ring.' },
   };
 
+  /* Fingerpicking patterns, one entry per eighth note. Each letter is a voice plucked on that step:
+     R thumb on the root, A thumb on its second bass string, i m a index, middle, ring. Two letters are a pinch. */
+  const PICKS = {
+    roll: { name: 'Forward roll', p: ['R', 'i', 'm', 'a', 'R', 'i', 'm', 'a'], say: 'Thumb, index, middle, ring, one string each, twice a bar. Count 1 & 2 & 3 & 4 &.' },
+    ballad: { name: 'Eight-note roll', p: ['R', 'i', 'm', 'i', 'a', 'i', 'm', 'i'], say: 'One thumb stroke a bar. The index finger comes back between every other note, like a hinge.' },
+    six: { name: 'Up and back', p: ['R', 'i', 'm', 'a', 'm', 'i'], say: 'Six notes to the bar: up the strings and back down. Count 1 2 3, 4 5 6 and lean on 1 and 4.' },
+    thumb: { name: 'Thumb alone', alt: true, p: ['R', 0, 'A', 0, 'R', 0, 'A', 0], say: 'Only the thumb, once per beat, rocking between two bass strings. Keep going until you can hold a conversation over it.' },
+    pinch: { name: 'Thumb and pinch', alt: true, p: ['Rm', 0, 'A', 0, 'Rm', 0, 'A', 0], say: 'The thumb keeps rocking. On beats 1 and 3 a finger plucks at the same moment: a pinch.' },
+    travis: { name: 'Travis pattern', alt: true, p: ['Rm', 0, 'A', 'i', 'R', 'm', 'A', 'i'], say: 'The thumb never changes. Pinch on 1, then fingers fall in the gaps: index after 2, middle after 3, index after 4.' },
+  };
+
   const player = { id: null, opts: null };
   function play(id, o) {
     stop();
     if (!ensure()) return;
     const opts = Object.assign({ bpm: 90, pattern: 'fours', beats: 4, loop: true, drums: false, bass: false, guitar: true, click: false, swing: 0, vel: 0.8, countIn: false }, o);
     player.id = id; player.opts = opts;
-    const voiced = opts.chords.map((c) => T.voicingMidis(T.voicing(c)));
-    const perChord = opts.beats * 2;
+    const shapes = opts.chords.map((c) => T.voicing(c));
+    const voiced = shapes.map(T.voicingMidis);
+    const pk = opts.pick ? PICKS[opts.pick] : null;
+    const maps = pk ? opts.chords.map((c, i) => T.pickMap(c, shapes[i], pk.alt)) : null;
+    const perChord = pk ? pk.p.length : opts.beats * 2;
+    const beatLen = perChord === 6 ? 3 : 2;
     const total = voiced.length * perChord;
     const lead = opts.countIn ? 8 : 0;
     let lastChord = -1;
@@ -191,7 +206,16 @@
         if (step < lead) { if (step % 2 === 0) click(t, step === 0); return; }
         const s = step - lead;
         if (!o2.loop && s >= total) { strum(voiced[0], { when: t, vel: o2.vel }); return false; }
-        const pos = s % total, ci = Math.floor(pos / perChord), inBar = pos % 8;
+        const pos = s % total, ci = Math.floor(pos / perChord), inBar = pos % perChord;
+        if (pk) {
+          const hit = pk.p[inBar];
+          if (o2.guitar && hit) hit.split('').forEach((v) => {
+            const str = maps[ci][v], thumb = v === 'R' || v === 'A';
+            if (voiced[ci][str] != null) pluck(voiced[ci][str], t, o2.vel * (thumb ? 1 : 0.8) * (inBar === 0 ? 1 : 0.9), str);
+          });
+          if (o2.click && inBar % beatLen === 0) click(t, inBar === 0);
+          return;
+        }
         const pat = (PATTERNS[o2.pattern] || PATTERNS.fours).p;
         const hit = pat[inBar];
         if (o2.guitar && hit) strum(voiced[ci], { when: t, dir: hit, vel: o2.vel * (inBar % 4 === 0 ? 1 : 0.82) });
@@ -215,7 +239,7 @@
         const s = step - lead;
         if (!opts.loop && s >= total) { setTimeout(() => { if (player.id === id) stop(); }, 1200); return; }
         const pos = s % total, ci = Math.floor(pos / perChord);
-        opts.onStep && opts.onStep(pos % 8, ci, pos);
+        opts.onStep && opts.onStep(pos % perChord, ci, pos);
         if (ci !== lastChord) { lastChord = ci; opts.onChord && opts.onChord(ci); }
       },
     });
@@ -323,5 +347,5 @@
     mic = null;
   }
 
-  W.audio = { ensure, now, pluck, strum, click, strumChord, playNote, sequence, PATTERNS, play, stop, toggle, player, tone, toneStop, detectPitch, micAvailable, micStart, micStop };
+  W.audio = { ensure, now, pluck, strum, click, strumChord, playNote, sequence, PATTERNS, PICKS, play, stop, toggle, player, tone, toneStop, detectPitch, micAvailable, micStart, micStop };
 })();

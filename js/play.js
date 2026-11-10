@@ -22,30 +22,70 @@
       { n: 'vi – ii vamp', s: [[9, 'min'], [2, 'min']] },
     ],
     blues: [{ n: '12-bar blues', s: [[0, D7], [0, D7], [0, D7], [0, D7], [5, D7], [5, D7], [0, D7], [0, D7], [7, D7], [5, D7], [0, D7], [7, D7]] }],
+    /* Modal loops. Like everything else here they are numbered from the parent major key, so a Dorian loop is home on the ii. */
+    dorian: [
+      { n: 'ii – V vamp', s: [[2, 'min'], [7]] },
+      { n: 'ii – iii vamp', s: [[2, 'min'], [4, 'min']] },
+      { n: 'ii – IV – I – V', s: [[2, 'min'], [5], [0], [7]] },
+    ],
+    mixo: [
+      { n: 'V – IV vamp', s: [[7], [5]] },
+      { n: 'V – IV – I – V', s: [[7], [5], [0], [7]] },
+      { n: 'V – ii vamp', s: [[7], [2, 'min']] },
+    ],
+    lydian: [
+      { n: 'IV – V vamp', s: [[5], [7]] },
+      { n: 'IV – iii vamp', s: [[5], [4, 'min']] },
+    ],
+    phrygian: [
+      { n: 'iii – IV vamp', s: [[4, 'min'], [5]] },
+      { n: 'iii – IV – V – IV', s: [[4, 'min'], [5], [7], [5]] },
+    ],
   };
-  const SCALE_OPTS = { major: ['majPent', 'major'], minor: ['minPent', 'minor', 'blues'], blues: ['minPent', 'blues'] };
+  /* par: the parent major key, in frets above the home note. box: where the minor pentatonic box that fits sits, relative to home. */
+  const FEELS = {
+    major: { l: 'Major', word: 'major', par: 0, box: -3, scales: ['majPent', 'major'] },
+    minor: { l: 'Minor', word: 'minor', par: 3, box: 0, scales: ['minPent', 'minor', 'blues'] },
+    blues: { l: 'Blues', word: 'blues', par: 0, box: 0, scales: ['minPent', 'blues'] },
+    dorian: { l: 'Dorian', word: 'Dorian', par: 10, box: 0, scales: ['dorian', 'minPent'], mode: 'ii' },
+    mixo: { l: 'Mixolydian', word: 'Mixolydian', par: 5, box: -3, scales: ['mixo', 'majPent'], mode: 'V' },
+    lydian: { l: 'Lydian', word: 'Lydian', par: 7, box: -3, scales: ['lydian', 'majPent'], mode: 'IV' },
+    phrygian: { l: 'Phrygian', word: 'Phrygian', par: 8, box: 0, scales: ['phrygian', 'minPent'], mode: 'iii' },
+  };
+  const PENTS = ['minPent', 'majPent', 'blues'];
+  const homeName = (feel, key) => (feel === 'minor' ? T.minorKeyName(key) : FEELS[feel].mode ? T.noteName(key, T.keyFlats(key + FEELS[feel].par)) : T.keyName(key));
   const TIPS = {
     major: 'In a major key the box sits three frets below the key note. Lean on the red note and it sounds sweet.',
     minor: 'In a minor key the box starts on the key note itself. Red is home. Bend the 4 toward the 5 for instant blues.',
     blues: 'Minor pentatonic over major chords is the blues sound: that clash is the point. Rest on red, b7 and 5.',
+    dorian: 'Dorian is a minor sound with one bright note, the 6. Your minor pentatonic box still fits. Add the 6 and land on it over the major chord: that note is the whole Dorian sound.',
+    mixo: 'Mixolydian is a major sound with a flattened 7, the sound of a lot of classic rock. The major pentatonic fits. Add the b7: it is the one note that separates this from plain major.',
+    lydian: 'Lydian is major with a raised 4, bright and floating. The major pentatonic fits. Add the #4 and let it hang over the home chord before you resolve it up to the 5.',
+    phrygian: 'Phrygian is minor with a flattened 2, dark and Spanish-sounding. Your minor pentatonic box fits. Add the b2, one fret above home, and fall back onto the red note.',
   };
 
   function jamSetup() {
     const j = U.jam, custom = j.custom;
     const list = JAMS[j.feel];
     if (j.prog >= list.length) j.prog = 0;
-    const majorKey = custom ? custom.majorKey : j.feel === 'minor' ? T.mod(j.key + 3) : j.key;
+    const F = FEELS[j.feel];
+    const majorKey = custom ? custom.majorKey : T.mod(j.key + F.par);
     const fl = T.keyFlats(majorKey);
     const chords = custom ? custom.chords : list[j.prog].s.map(([d, q]) => T.chord(majorKey + d, q || 'maj', fl));
-    const scales = SCALE_OPTS[j.feel];
+    const scales = F.scales;
     if (!scales.includes(j.scale)) j.scale = scales[0];
-    const mroot = j.feel === 'major' ? j.key - 3 : j.key, f = T.mod(mroot - 4);
-    const pent = j.scale !== 'major' && j.scale !== 'minor';
+    const mroot = j.key + F.box, f = T.mod(mroot - 4);
+    const pent = PENTS.includes(j.scale);
     return { majorKey, fl, chords, scales, tonic: j.key, f, win: pent ? [f, f + 3] : [Math.max(0, f - 1), f + 4] };
   }
   function jamBoard(ci) {
     const j = U.jam, s = jamSetup(), ch = s.chords[ci || 0], box = j.pos === 'box';
     const marks = R.scaleMarks({ root: s.tonic, pcs: T.SCALES[j.scale].steps.map((x) => s.tonic + x), label: j.label, colorRoot: s.tonic, from: box ? s.win[0] : 0, to: box ? s.win[1] : 15, dimOutside: box, ringPcs: ch.tones, flats: s.fl });
+    /* Lydian's extra note is a raised 4, not a flattened 5. */
+    if (j.scale === 'lydian') Object.keys(marks).forEach((k) => {
+      const [st, fr] = k.split(':').map(Number);
+      if (T.mod(T.TUNING[st] + fr - s.tonic) === 6) { marks[k].d = 4; if (j.label === 'degree') marks[k].t = '#4'; }
+    });
     return R.fretboard({ id: 'jam', marks, window: box ? s.win : null });
   }
   function jamNow(big, small) { const a = $('jam-now'), b = $('jam-sub'); if (a) a.textContent = big; if (b) b.textContent = small; }
@@ -72,14 +112,18 @@
       };
     });
     const c0 = s.chords[ci];
-    const keyLabel = j.feel === 'minor' ? T.minorKeyName(j.key) + ' minor' : T.keyName(j.key) + (blues ? ' blues' : ' major');
+    const F = FEELS[j.feel], home = homeName(j.feel, j.key);
+    const keyLabel = `${home} ${F.word}`;
+    const feelChips = (keys) => chips(keys.map((k) => ({ v: k, l: FEELS[k].l })), j.feel, 'jamSet', 'data-k="feel"');
+    const modeNote = F.mode && !j.custom ? ` ${P(home)} ${F.word} uses the notes of ${P(T.keyName(s.majorKey))} major with ${P(home)} as home, so the chords are numbered from ${P(T.keyName(s.majorKey))} and home is the ${F.mode}.` : '';
     const mixChip = (k, l) => `<button type="button" class="chip${j[k] ? ' on' : ''}" data-act="jamMix" data-k="${k}" aria-pressed="${j[k]}">${l}</button>`;
     return `<div class="head"><span class="eyebrow">Jam room</span><h1>${P(keyLabel)}</h1>
         <p class="lede">A band that never gets tired. Strum along with the chords, or take the lead: every dot on the neck is a safe note, and the <strong>ringed</strong> ones are ${W.term('chordtone', 'chord tones')}: they belong to the chord playing right now.</p></div>
       ${j.custom ? `<div class="row"><span class="tag">Your song</span><strong>${esc(j.custom.title)}</strong><button type="button" class="btn sm quiet" data-act="jamClear">Back to the standard loops</button></div>` : `
       <div class="row" style="gap:20px 28px;align-items:flex-start">
-        <div class="stack tight"><span class="label">Feel</span>${chips([{ v: 'major', l: 'Major' }, { v: 'minor', l: 'Minor' }, { v: 'blues', l: 'Blues' }], j.feel, 'jamSet', 'data-k="feel"')}</div>
-        <div class="stack tight"><span class="label">Key</span>${chips(W.KEY_ORDER.map((pc) => ({ v: pc, l: j.feel === 'minor' ? T.minorKeyName(pc) + 'm' : T.keyName(pc) })), j.key, 'jamSet', 'data-k="key"')}</div>
+        <div class="stack tight"><span class="label">Feel</span>${feelChips(['major', 'minor', 'blues'])}</div>
+        <div class="stack tight"><span class="label">${W.term('mode', 'Mode')}</span>${feelChips(['dorian', 'mixo', 'lydian', 'phrygian'])}</div>
+        <div class="stack tight"><span class="label">${F.mode ? 'Home note' : 'Key'}</span>${chips(W.KEY_ORDER.map((pc) => ({ v: pc, l: homeName(j.feel, pc) + (j.feel === 'minor' ? 'm' : '') })), j.key, 'jamSet', 'data-k="key"')}</div>
         ${JAMS[j.feel].length > 1 ? `<div class="stack tight"><span class="label">Loop</span>${chips(JAMS[j.feel].map((p, i) => ({ v: i, l: p.n })), j.prog, 'jamSet', 'data-k="prog"')}</div>` : ''}
       </div>`}
       <section class="panel">
@@ -102,7 +146,7 @@
           <div class="stack tight"><span class="label">Label with</span>${chips([{ v: 'degree', l: 'Numbers' }, { v: 'note', l: 'Note names' }], j.label, 'set', 'data-path="jam.label" data-keep="1"')}</div>
         </div>
         <div id="jam-fb">${jamBoard(ci)}</div>
-        <p class="note">${TIPS[j.feel]} Start with one ringed note per chord, held for the whole bar.</p>
+        <p class="note">${TIPS[j.feel]}${modeNote} Start with one ringed note per chord, held for the whole bar.</p>
       </section>`;
   };
 
@@ -112,7 +156,7 @@
       const k = el.dataset.k, v = el.dataset.v;
       U.jam.custom = null;
       U.jam[k] = k === 'feel' ? v : +v;
-      if (k === 'feel') U.jam.prog = 0;
+      if (k === 'feel') { U.jam.prog = 0; U.jam.scale = FEELS[v].scales[0]; }
       W.render();
     },
     jamMix(el) {

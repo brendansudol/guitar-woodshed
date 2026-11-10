@@ -3,6 +3,7 @@
   const W = window.W;
 
   W.STAGES = [
+    { n: 0, title: 'Start here', why: 'One short lesson using your own songs, so you can see what the rest of the course is building toward.' },
     { n: 1, title: 'The map', why: 'You can’t navigate what you can’t name. Chord roots, barre chords and every scale hang off the notes on the two thickest strings.' },
     { n: 2, title: 'Where chords come from', why: 'Chords aren’t arbitrary finger shapes. Each one is three notes pulled out of a scale. Once you see that, new chords stop being things to memorize.' },
     { n: 3, title: 'Songs are numbers', why: 'The unlock for learning songs fast. Musicians don’t remember “G, D, Em, C”. They remember “1, 5, 6, 4” and can play it in any key.' },
@@ -13,6 +14,22 @@
   ];
 
   W.LESSONS = [
+    /* ---------------- Start here ---------------- */
+    {
+      id: '0-1', stage: 0, mins: 5, title: 'Your songs already share a system',
+      body: `<p>Right now you know each song as its own list of chord shapes. Before any theory, look at them another way.</p>
+<p>Type the chords of a song you play into the box below. The app works out the key and puts a <strong>number</strong> under every chord. (The numbers are written as roman numerals: capitals for major chords, lower-case for minor.) Don’t worry yet about where they come from. Just look at which ones show up.</p>
+<p>Then compare with the songs underneath. Different letters, different order, but the same few numbers: mostly <strong>I, IV, V and vi</strong>. Those numbers are what your songs have in common. Learning to see, hear and use them is what turns five memorized songs into fifty.</p>
+<p>Stages 1 and 2 explain where the numbers come from. Stage 3 puts them to work. If a word has a dotted underline, tap it for a plain definition.</p>`,
+      w: { type: 'decode' },
+      practice: ['Play your song while reading the numbers under the chords, not the letters.', 'Decode a second song. Find one number the two songs share.', 'Save both to your Songbook. You will come back to them in every stage.'],
+      tool: { label: 'How to read this app', hash: 'guide' },
+      quiz: [
+        { q: 'Two songs use different chord letters but the same numbers. What does that tell you?', a: ['One of them is written down wrong', 'They are the same pattern in different keys', 'They must be played at the same speed'], c: 1 },
+        { q: 'Which numbers turn up most in popular songs?', a: ['I, IV, V and vi', 'ii, iii and vii', 'Only the I'], c: 0 },
+      ],
+    },
+
     /* ---------------- Stage 1 ---------------- */
     {
       id: '1-1', stage: 1, mins: 6, title: 'Twelve notes, one string',

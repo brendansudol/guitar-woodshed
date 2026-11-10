@@ -218,6 +218,30 @@
           <div class="tiles">${set.map(([c, sh, sub]) => R.chordTile(c, st.key, { box: true, shape: sh, sub })).join('')}</div>
           <p class="note">Change key and watch: the layout stays put. Only the fret number moves.</p>`;
       }
+      case 'decode': {
+        def('title', ''); def('text', '');
+        const typed = W.parseSong(st.text).flatMap((x) => x.chords);
+        const chords = typed.length ? typed : 'G D Em C'.split(' ').map(T.parseChord);
+        const key = T.detectKey(chords).key, match = T.matchProg(chords, key);
+        const id = W.reg('w-dec', () => Object.assign({ chords, bpm: 96, pattern: 'folk', bass: true, drums: true, vel: 0.7 }, W.hl('w-dec')));
+        const inBook = S.songs.some((s) => s.text.trim() === st.text.trim());
+        const rows = S.songs.slice(0, 6).map((s) => {
+          const an = W.analyze(s);
+          return `<div class="cmp"><span><strong>${esc(s.title)}</strong>${s.example ? ' <span class="tag">Example</span>' : ''}<br><span class="small muted">key of ${T.keyName(an.key)}</span></span>
+            <div class="row" style="gap:4px">${an.all.slice(0, 8).map((c) => R.degTag(T.numeral(c, an.key, true), T.degreeOf(c.root, an.key))).join('')}</div></div>`;
+        }).join('');
+        return `<div class="row" style="align-items:flex-end">
+            <label class="field" style="flex:1;min-width:150px"><span class="label">Song title</span><input type="text" id="dec-title" value="${esc(st.title)}" autocomplete="off"></label>
+            <label class="field" style="flex:2;min-width:200px"><span class="label">Its chords, in order</span><input type="text" id="dec-text" value="${esc(st.text)}" placeholder="G D Em C" data-change="decodeText" autocomplete="off" spellcheck="false"></label>
+            <button type="button" class="btn primary" data-act="decodeGo">Decode it</button></div>
+          <div class="stack">
+            <div class="row">${typed.length ? '' : '<span class="tag">Example</span>'}<span class="deg d1" style="font-size:18px;padding:3px 9px 1px">Key of ${T.keyName(key)}</span>${R.playBtn(id, 'Hear it', 'sm')}</div>
+            ${W.progStrip('w-dec', chords, key, {})}
+            <p class="note">${match ? `<strong>${esc(match.name)}</strong> (${esc(match.nums)}). ` : ''}The coloured tag under each chord is its number in this key. Red is I, the home chord.</p>
+            ${typed.length ? `<div class="row">${st.saved ? '<strong>Saved to your Songbook.</strong>' : inBook ? '' : '<button type="button" class="btn sm" data-act="decodeSave">Save to my Songbook</button>'}</div>` : ''}
+          </div>
+          <div class="stack tight"><span class="label">Now compare: the numbers in other songs</span>${rows || '<p class="note">Your Songbook is empty. Decode a second song to compare.</p>'}</div>`;
+      }
       case 'link':
         return `<div class="row"><button type="button" class="btn primary" data-act="go" data-hash="${w.hash}"${TOOL_TAB[l.id] ? ` data-tab="${TOOL_TAB[l.id]}"` : ''}>${esc(w.label)} →</button></div>`;
     }
@@ -256,9 +280,28 @@
       const id = el.dataset.id;
       S.lessons[id] = Date.now();
       W.logBlock('l');
-      const i = W.LESSONS.findIndex((l) => l.id === id), next = W.LESSONS[i + 1];
-      U.lesson = next ? next.id : null;
+      const i = W.LESSONS.findIndex((l) => l.id === id), cur = W.LESSONS[i], next = W.LESSONS[i + 1];
+      /* At the end of a stage, stop at its target instead of rolling straight into the next stage. */
+      const g = W.goal(cur.stage), hold = (!next || next.stage !== cur.stage) && g && !g.met;
+      U.lesson = next && !hold ? next.id : null;
       A.stop(); W.render(); window.scrollTo(0, 0);
+      const sec = hold && document.getElementById('stage-' + cur.stage);
+      if (sec) sec.scrollIntoView();
+    },
+    decodeGo() {
+      const st = U.w[U.lesson];
+      if (!st) return;
+      st.title = document.getElementById('dec-title').value.trim();
+      st.text = document.getElementById('dec-text').value.trim();
+      st.saved = false;
+      A.stop(); W.render();
+    },
+    decodeSave() {
+      const st = U.w[U.lesson];
+      if (!st || !st.text) return;
+      S.songs.unshift({ id: 's' + Date.now().toString(36), title: st.title || 'My song', artist: '', text: st.text, key: null });
+      st.saved = true;
+      W.save(); W.render();
     },
     lessonUndo(el) { delete S.lessons[el.dataset.id]; W.save(); W.render(); },
     blockDone(el) { W.logBlock(el.dataset.k, el.checked); W.render(); },
@@ -272,19 +315,19 @@
 
   /* ---------- Path ---------- */
   function lessonView(l) {
-    const stage = W.STAGES[l.stage - 1];
+    const stage = stageOf(l.stage);
     const inStage = W.LESSONS.filter((x) => x.stage === l.stage);
     const qs = U.q[l.id] || {};
     const done = !!S.lessons[l.id];
     return `<div class="head">
         <div class="row"><button type="button" class="btn sm quiet" data-act="closeLesson">← All lessons</button></div>
-        <span class="eyebrow">Stage ${l.stage} · ${esc(stage.title)} · Lesson ${inStage.indexOf(l) + 1} of ${inStage.length} · ${l.mins} min</span>
+        <span class="eyebrow">${l.stage ? `Stage ${l.stage} · ${esc(stage.title)} · Lesson ${inStage.indexOf(l) + 1} of ${inStage.length}` : esc(stage.title)} · ${l.mins} min</span>
         <h1>${esc(l.title)}</h1>
       </div>
-      <div class="prose">${l.body}</div>
+      <div class="prose">${W.linkTerms(l.body)}</div>
       <section class="panel"><span class="label">Try it</span>${widget(l)}</section>
       <section class="stack"><h2>On your guitar</h2>
-        ${l.practice.map((p, i) => { const k = l.id + ':' + i, on = !!S.prac[k]; return `<label class="check${on ? ' done' : ''}"><input type="checkbox" id="prac-${l.id}-${i}" data-act="prac" data-k="${k}"${on ? ' checked' : ''}><span>${esc(p)}</span></label>`; }).join('')}
+        ${l.practice.map((p, i) => { const k = l.id + ':' + i, on = !!S.prac[k]; return `<label class="check${on ? ' done' : ''}"><input type="checkbox" id="prac-${l.id}-${i}" data-act="prac" data-k="${k}"${on ? ' checked' : ''}><span>${W.linkTerms(esc(p))}</span></label>`; }).join('')}
         ${l.tool ? `<div class="row"><button type="button" class="btn sm" data-act="go" data-hash="${l.tool.hash}"${TOOL_TAB[l.id] ? ` data-tab="${TOOL_TAB[l.id]}"` : ''}>${esc(l.tool.label)} →</button></div>` : ''}
       </section>
       <section class="stack"><h2>Check yourself</h2>
@@ -305,21 +348,24 @@
     const next = W.LESSONS.find((l) => !S.lessons[l.id]);
     return `<div class="head"><span class="eyebrow">The path · 7 stages · ${W.LESSONS.length} lessons</span>
         <h1>Each stage is built on the last</h1>
-        <p class="lede">Song tutorials teach you where to put your fingers. This teaches why they go there, in the order that makes every new thing attach to something you already know. Skip ahead if a stage is old news; come back when something later doesn’t click.</p></div>
+        <p class="lede">Song tutorials teach you where to put your fingers. This teaches why they go there, in the order that makes every new thing attach to something you already know. Skip ahead if a stage is old news; come back when something later doesn’t click. Reading a stage takes minutes and the skill takes longer, so each stage ends with a target to reach before you move on.</p></div>
       <div>${W.STAGES.map((st) => {
         const ls = W.LESSONS.filter((l) => l.stage === st.n);
         const allDone = ls.every((l) => S.lessons[l.id]);
-        return `<section class="stage${allDone ? ' done-all' : ''}">
+        return `<section id="stage-${st.n}" class="stage${allDone ? ' done-all' : ''}">
           <div class="stage-n">${st.n}</div>
           <div class="stack tight"><h2>${esc(st.title)}</h2><p class="muted" style="max-width:62ch">${esc(st.why)}</p>
             <div class="lessons">${ls.map((l) => `<button type="button" class="lesson-row${S.lessons[l.id] ? ' done' : ''}${next && next.id === l.id ? ' next' : ''}" data-act="openLesson" data-id="${l.id}">
               <span class="tick"></span><span>${esc(l.title)}${next && next.id === l.id ? ' <span class="tag">Up next</span>' : ''}</span><span class="mins">${l.mins} min</span></button>`).join('')}</div>
+            ${W.goalBlock(st.n)}
           </div></section>`;
       }).join('')}</div>`;
   };
 
   /* ---------- Today ---------- */
+  const stageOf = (n) => W.STAGES.find((s) => s.n === n);
   const WARM = {
+    0: ['notes', 'Note Finder', 'A first try: ten notes on the two thickest strings. Guessing is fine. This is your starting line.'],
     1: ['notes', 'Note Finder', 'Ten notes on the low E and A strings. Say each name out loud as you find it.'],
     2: ['notes', 'Note Finder', 'Ten notes on the low E and A strings. You need these roots for every chord you build.'],
     3: ['keys', 'Key Chords', 'Ten quick questions like “what’s the IV in A?”. Go for speed, not certainty.'],
@@ -334,6 +380,7 @@
     const nums = an.lines[0] ? an.lines[0].chords.slice(0, 4).map((c) => P(T.numeral(c, an.key))).join(' – ') : '';
     const other = P(T.keyName(an.key === 7 ? 0 : 7));
     return {
+      0: [`Play ${t} by its numbers`, `Open it in the Songbook and play along, reading the numbers under the chords instead of the letters.`],
       1: [`Find the roots in ${t}`, `Play it slowly. Before each chord, say its root note and find that note on the low E or A string.`],
       2: [`Name the notes in ${t}`, `Hold each chord and name its 1, 3 and 5. Is the 3 major or flattened?`],
       3: [`Play ${t} by number`, `Call the numbers out loud as you play${nums ? ' (' + nums + ')' : ''}. Then play the same numbers in ${other}.`],
@@ -346,7 +393,8 @@
 
   W.VIEWS.today = function () {
     const nl = W.LESSONS.find((l) => !S.lessons[l.id]);
-    const stageN = nl ? nl.stage : 7, stage = W.STAGES[stageN - 1];
+    const stageN = nl ? nl.stage : 7, stage = stageOf(stageN);
+    const hold = W.holdStage();
     const day = S.log[W.dayKey()] || {};
     const dn = Math.floor(Date.now() / 864e5);
     const song = S.songs.length ? S.songs[dn % S.songs.length] : null;
@@ -374,14 +422,18 @@
     for (let i = 27; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); days.push(W.dayKey(d)); }
     const noteStats = Object.values(S.drills.notes).reduce((a, [c, t]) => [a[0] + c, a[1] + t], [0, 0]);
 
-    return `<div class="head"><span class="eyebrow">${esc(date)} · Stage ${stageN} of 7 · ${esc(stage.title)}</span>
+    return `<div class="head"><span class="eyebrow">${esc(date)} · ${stageN ? `Stage ${stageN} of 7 · ` : ''}${esc(stage.title)}</span>
         <h1>Today’s twenty minutes</h1>
         <p class="lede">${S.onboarded ? esc(stage.why) : 'You can already play songs. This course teaches the system underneath them, so the next song takes an afternoon and a jam with friends stops being scary. Four short blocks a day, each feeding the next.'}</p></div>
       ${setup ? setupPanel : ''}
+      <div class="row" style="gap:10px 14px"><a class="btn sm" href="#tune">Tune up first</a>${S.guideSeen ? '' : '<a class="btn sm" href="#guide">How to read this app</a>'}
+        <span class="note">${S.guideSeen ? 'Thirty seconds. Everything sounds wrong on an out-of-tune guitar.' : 'New here? Tune up, then take one minute to learn how to read the diagrams.'}</span></div>
       <div class="cols">
         <div class="session">
           ${block('w', 3, 'warm up', esc(warm[1]), esc(warm[2]), `<button type="button" class="btn sm" data-act="go" data-hash="train" data-tab="${warm[0]}">Start</button>`)}
-          ${block('l', nl ? nl.mins : 7, 'learn', nl ? esc(nl.title) : 'Revisit any lesson', nl ? `Stage ${nl.stage}, the next step on the path. Read, try the demo, do the check.` : 'You’ve finished the path. Pick the lesson that still feels shaky.', nl ? `<button type="button" class="btn sm primary" data-act="openLesson" data-id="${nl.id}">Open lesson</button>` : `<button type="button" class="btn sm" data-act="go" data-hash="path">Open path</button>`)}
+          ${hold
+            ? block('l', 7, 'practise', `Stay on stage ${hold.n} until it sticks`, `${esc(hold.text)} You’re at ${hold.have} of ${hold.need} ${hold.unit}. Reading the lessons was the quick part.`, W.goBtn(hold.go, 'sm primary') + (nl ? `<button type="button" class="btn sm quiet" data-act="openLesson" data-id="${nl.id}">Next lesson anyway</button>` : ''))
+            : block('l', nl ? nl.mins : 7, 'learn', nl ? esc(nl.title) : 'Revisit any lesson', nl ? (nl.stage ? `Stage ${nl.stage}, the next step on the path. Read, try the demo, do the check.` : 'The first step: five minutes with one of your own songs.') : 'You’ve finished the path. Pick the lesson that still feels shaky.', nl ? `<button type="button" class="btn sm primary" data-act="openLesson" data-id="${nl.id}">Open lesson</button>` : `<button type="button" class="btn sm" data-act="go" data-hash="path">Open path</button>`)}
           ${block('a', 5, 'apply', app[0], app[1], `<button type="button" class="btn sm" data-act="go" data-hash="songs">Songbook</button>`)}
           ${block('j', 5, 'play', `Jam in ${P(T.keyName(jamKey))}`, 'Backing band on, no goal. Strum along, then try a few notes from the box. This is the part that makes it music.', `<button type="button" class="btn sm" data-act="jamIn" data-key="${jamKey}">Jam Room</button>`)}
         </div>
@@ -403,5 +455,6 @@
       </div>`;
   };
 
+  W.ON.decodeText = function () { W.ACT.decodeGo(); };
   Object.assign(W, { keyChips, familyBlock, progList, capoWays, capoTable, KEY_ORDER });
 })();

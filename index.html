@@ -58,7 +58,6 @@ h1, h2, h3, p, ol, ul { margin: 0; }
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 @media (min-width: 861px) { .main { padding-left: max(36px, env(safe-area-inset-left, 0px)); padding-right: max(36px, env(safe-area-inset-right, 0px)); } }
 .view { display: flex; flex-direction: column; gap: 30px; }
-.mobile-brand { display: none; }
 
 @media (max-width: 860px) {
   .app { display: block; }
@@ -70,7 +69,7 @@ h1, h2, h3, p, ol, ul { margin: 0; }
   .nav a { flex: 1; justify-content: center; padding: 9px 0; font-size: 15.5px; letter-spacing: .02em; }
   .nav a small { display: none; }
   .main { padding-block: 18px 96px; }
-  .mobile-brand { display: block; font-family: var(--font-display); font-weight: 900; font-size: 22px; text-transform: uppercase; line-height: 1; }
+  .mobile-brand { font-family: var(--font-display); font-weight: 900; font-size: 22px; text-transform: uppercase; line-height: 1; }
   .mobile-brand span { color: var(--accent); }
 }
 
@@ -188,7 +187,7 @@ select { width: auto; padding: 6px 9px; }
 .block.done .block-time, .block.done h3 { color: var(--muted); }
 .block.done h3 { text-decoration: line-through; text-decoration-color: var(--line-strong); }
 .block-side { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
-@media (max-width: 560px) { .block { grid-template-columns: 54px minmax(0, 1fr); } .block-side { grid-column: 2; flex-direction: row; align-items: center; } .block-time { font-size: 32px; } }
+@media (max-width: 560px) { .block { grid-template-columns: 54px minmax(0, 1fr); } .block-side { grid-column: 2; flex-direction: row; flex-wrap: wrap; align-items: center; } .block-time { font-size: 32px; } }
 .dots { display: grid; grid-template-columns: repeat(7, 16px); gap: 5px; }
 .dot { width: 16px; height: 16px; border-radius: 2px; background: var(--d0); }
 .dot.on { background: var(--accent); }
@@ -237,6 +236,46 @@ select { width: auto; padding: 6px 9px; }
 .bigq { font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 6vw, 46px); line-height: 1; text-transform: uppercase; text-wrap: balance; }
 .score { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) { .tile, .chip, .btn, .strum-cell { transition: background-color .08s, border-color .08s, color .08s; } }
+
+/* Secondary links, glossary, guide, targets, tuner */
+.nav2 { display: flex; flex-direction: column; gap: 2px; margin-top: -14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.nav2 a { padding: 5px 10px; border-radius: 3px; font-size: 14px; font-weight: 600; text-decoration: none; color: var(--muted); }
+.nav2 a:hover { color: var(--fg); }
+.nav2 a.on { background: var(--fg); color: var(--bg); }
+.mobile-top { display: none; }
+@media (max-width: 860px) {
+  .rail .nav2 { display: none; }
+  .mobile-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .mobile-brand { text-decoration: none; }
+  .mobile-links { display: flex; gap: 6px; }
+  .mobile-links a { padding: 5px 10px; border: 1px solid var(--line-strong); border-radius: 999px; font-size: 13px; font-weight: 600; text-decoration: none; }
+  .mobile-links a.on { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+}
+button.term { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: help; text-decoration: underline dotted var(--line-strong); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+button.term:hover { text-decoration-color: var(--accent); }
+.gloss { position: absolute; z-index: 30; width: max-content; max-width: min(340px, calc(100vw - 24px)); padding: 13px 16px 14px; background: var(--fg); color: var(--bg); border-radius: 4px; font-size: 14.5px; line-height: 1.45; box-shadow: 0 8px 28px rgba(0, 0, 0, .28); }
+.gloss strong { display: block; margin-bottom: 3px; font-family: var(--font-display); font-weight: 800; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
+.gloss.sheet { position: fixed; width: auto; max-width: none; left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(62px + env(safe-area-inset-bottom, 0px)); }
+.points { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 9px; max-width: 66ch; }
+.gloss-list { margin: 0; display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr); gap: 10px 22px; max-width: 800px; }
+.gloss-list dt { font-weight: 700; }
+.gloss-list dd { margin: 0; color: var(--muted); }
+@media (max-width: 560px) { .gloss-list { grid-template-columns: minmax(0, 1fr); gap: 2px; } .gloss-list dd { margin-bottom: 12px; } }
+.goal { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; padding: 14px 16px; background: var(--sunk); border-radius: 3px; max-width: 62ch; }
+.goal .bar { flex: 1; min-width: 90px; background: var(--line); }
+.goal.met .bar i { background: var(--good); }
+.goal.met p { color: var(--muted); }
+.cmp { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 6px 14px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); line-height: 1.3; }
+@media (max-width: 560px) { .cmp { grid-template-columns: minmax(0, 1fr); } }
+.meter { position: relative; height: 46px; background: var(--sunk); border-radius: 3px; overflow: hidden; }
+.meter-zone { position: absolute; left: 45%; width: 10%; top: 0; bottom: 0; background: var(--good); opacity: .28; }
+.meter-mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--line-strong); }
+.meter-needle { position: absolute; left: 50%; top: 5px; bottom: 5px; width: 6px; margin-left: -3px; border-radius: 3px; background: var(--fg); }
+.tuner.ok .meter-needle { background: var(--good); }
+.tuner.ok #tu-note, .tuner.ok #tu-msg { color: var(--good); }
+.tuner.idle .meter-needle, .tuner.idle #tu-note { opacity: .2; }
+.tile.heard { border-color: var(--good); box-shadow: 0 0 0 2px var(--good); }
+@media (prefers-reduced-motion: no-preference) { .meter-needle { transition: left .09s linear; } }
 </style>
 
 <div class="app">
@@ -254,6 +293,10 @@ select { width: auto; padding: 6px 9px; }
       <a href="#jam" data-v="jam">Jam</a>
       <a href="#train" data-v="train">Train</a>
     </nav>
+    <nav class="nav2" aria-label="Help">
+      <a href="#tune" data-v="tune">Tuner</a>
+      <a href="#guide" data-v="guide">How to read this</a>
+    </nav>
     <div class="rail-foot">
       <span><strong id="foot-streak">0</strong> day streak</span>
       <span id="foot-sync">Progress saved on this device</span>
@@ -267,6 +310,8 @@ select { width: auto; padding: 6px 9px; }
 <script src="js/render.js"></script>
 <script src="js/lessons.js"></script>
 <script src="js/core.js"></script>
+<script src="js/glossary.js"></script>
+<script src="js/extras.js"></script>
 <script src="js/learn.js"></script>
 <script src="js/tools.js"></script>
 <script src="js/play.js"></script>

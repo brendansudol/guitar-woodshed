@@ -11,7 +11,7 @@
       { id: 'ex2', example: true, title: 'Let It Be', artist: 'The Beatles', key: null, text: 'Verse: C G Am F\nC G F C' },
       { id: 'ex3', example: true, title: 'Knockin’ on Heaven’s Door', artist: 'Bob Dylan', key: null, text: 'Verse: G D Am Am\nG D C C' },
     ],
-    lessons: {}, prac: {}, log: {}, changes: {},
+    lessons: {}, prac: {}, log: {}, changes: {}, goals: {}, guideSeen: false,
     drills: { notes: {}, keys: [0, 0], ear: [0, 0], best: {} },
   });
 
@@ -30,6 +30,7 @@
     key: 7,
     songs: { edit: null, tr: {}, del: null, err: '' },
     jam: { key: 9, feel: 'minor', prog: 0, bpm: 84, scale: 'minPent', pos: 'box', label: 'degree', drums: true, bass: true, guitar: true, custom: null },
+    tune: { listening: false, err: '', ref: null },
     tr: {
       tab: 'notes',
       notes: { strings: [0, 1], mode: 'find', nat: true, run: null },
@@ -133,8 +134,9 @@
       lastView = v;
     }
     W.plays = {}; W.FB = {};
-    document.getElementById('main').innerHTML = `<div class="view"><div class="mobile-brand">Wood<span>shed</span></div>${W.VIEWS[v]()}</div>`;
-    document.querySelectorAll('#nav a').forEach((a) => {
+    document.getElementById('main').innerHTML = `<div class="view"><div class="mobile-top"><a class="mobile-brand" href="#today">Wood<span>shed</span></a><span class="mobile-links"><a href="#tune" data-v="tune">Tuner</a><a href="#guide" data-v="guide">Guide</a></span></div>${W.VIEWS[v]()}</div>`;
+    if (W.closeGloss) W.closeGloss();
+    document.querySelectorAll('.rail a[data-v], .mobile-links a[data-v]').forEach((a) => {
       const on = a.dataset.v === v;
       a.classList.toggle('on', on);
       if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');

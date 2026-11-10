@@ -46,7 +46,7 @@
     const ways = W.capoWays(k);
     const mine = S.songs.map((s) => ({ s, an: W.analyze(s) })).filter((x) => x.an.key === k);
     return `<div class="head"><span class="eyebrow">Chord families</span><h1>Key of ${P(name)}</h1>
-        <p class="lede">Seven chords built from one scale. A song in ${P(name)} is made almost entirely from these, and mostly from the I, IV, V and vi.</p></div>
+        <p class="lede">Seven chords built from one scale. A song in ${P(name)} is made almost entirely from these, and mostly from the I, IV, V and vi. ${W.term('numeral', 'What do the numerals mean?')}</p></div>
       <div class="stack tight"><span class="label">Key</span>${W.keyChips('key', k)}</div>
       ${W.familyBlock(k, 'k')}
       <div class="stack tight"><span class="label">The scale it comes from</span>
@@ -124,7 +124,7 @@
     const degOf = (n) => T.DEG_OF[T.NUM.findIndex((x) => x.toLowerCase() === n.replace('°', '').toLowerCase())] || 0;
     const hasEx = S.songs.some((s) => s.example);
     return `<div class="head"><span class="eyebrow">Songbook · ${S.songs.length} song${S.songs.length === 1 ? '' : 's'}</span><h1>Your songs, decoded</h1>
-        <p class="lede">Type in the chords of a song you play. The app finds the key, turns every chord into its number, names the pattern, and shows what it shares with the rest of your songs.</p></div>
+        <p class="lede">Type in the chords of a song you play. The app finds the key, turns every chord into its ${W.term('numeral', 'number')}, names the pattern, and shows what it shares with the rest of your songs.</p></div>
       ${U.songs.edit ? songForm() : `<div class="row"><button type="button" class="btn primary" data-act="songNew">Add a song</button>
         ${hasEx ? '<button type="button" class="btn quiet" data-act="songClearEx">Remove the examples</button>' : ''}</div>`}
       ${total ? `<section class="panel"><div class="cols" style="gap:24px">

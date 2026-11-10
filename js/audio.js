@@ -243,5 +243,85 @@
     return chords.length * gap;
   }
 
-  W.audio = { ensure, now, pluck, strum, click, strumChord, playNote, sequence, PATTERNS, play, stop, toggle, player };
+  /* ---------- Tuner: a held reference tone, and pitch detection from the microphone ---------- */
+  let ref = null;
+  function toneStop() {
+    if (!ref) return;
+    const t = ctx.currentTime;
+    try { ref.g.gain.cancelScheduledValues(t); ref.g.gain.setTargetAtTime(0, t, 0.04); ref.o1.stop(t + 0.3); ref.o2.stop(t + 0.3); } catch (e) {}
+    ref = null;
+  }
+  function tone(midi) {
+    toneStop();
+    if (!ensure()) return;
+    const f = 440 * Math.pow(2, (midi - 69) / 12), t = ctx.currentTime;
+    const g = ctx.createGain(), g2 = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.2, t + 0.1);
+    g2.gain.value = 0.5; // an octave above, so the low strings are audible on small speakers
+    const o1 = ctx.createOscillator(), o2 = ctx.createOscillator();
+    o1.type = 'triangle'; o1.frequency.value = f; o2.type = 'sine'; o2.frequency.value = f * 2;
+    o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(master);
+    o1.start(t); o2.start(t);
+    ref = { o1, o2, g };
+    pluck(midi, 0, 0.8);
+  }
+
+  /* Fundamental frequency of a buffer, or null. Normalised square difference (McLeod), which copes with
+     guitar strings whose fundamental is weaker than their overtones. */
+  function detectPitch(buf, sr) {
+    const n = buf.length;
+    let rms = 0;
+    for (let i = 0; i < n; i++) rms += buf[i] * buf[i];
+    if (Math.sqrt(rms / n) < 0.01) return null;
+    const maxLag = Math.min(Math.floor(sr / 60), n >> 1), minLag = Math.floor(sr / 1200);
+    const nsdf = new Float32Array(maxLag + 2);
+    for (let tau = 0; tau <= maxLag + 1; tau++) {
+      let acf = 0, m = 0;
+      for (let i = 0, e = n - tau; i < e; i++) { const a = buf[i], b = buf[i + tau]; acf += a * b; m += a * a + b * b; }
+      nsdf[tau] = m > 0 ? (2 * acf) / m : 0;
+    }
+    let tau = 1, best = 0;
+    const peaks = [];
+    while (tau < maxLag && nsdf[tau] > 0) tau++;
+    while (tau < maxLag) {
+      while (tau < maxLag && nsdf[tau] <= 0) tau++;
+      let pk = -1, pv = 0;
+      while (tau < maxLag && nsdf[tau] > 0) { if (nsdf[tau] > pv) { pv = nsdf[tau]; pk = tau; } tau++; }
+      if (pk > 0) { peaks.push([pk, pv]); if (pv > best) best = pv; }
+    }
+    if (best < 0.8) return null;
+    const t0 = peaks.find((p) => p[1] >= 0.9 * best)[0];
+    if (t0 < minLag) return null;
+    const a = nsdf[t0 - 1], b = nsdf[t0], c = nsdf[t0 + 1], den = a - 2 * b + c;
+    return sr / (t0 + (den ? (a - c) / (2 * den) : 0));
+  }
+
+  let mic = null;
+  const micAvailable = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext);
+  async function micStart(onPitch) {
+    micStop();
+    const c = ensure();
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    const src = c.createMediaStreamSource(stream), an = c.createAnalyser();
+    an.fftSize = 4096;
+    src.connect(an);
+    const buf = new Float32Array(an.fftSize), hist = [];
+    const timer = setInterval(() => {
+      an.getFloatTimeDomainData(buf);
+      const f = detectPitch(buf, c.sampleRate);
+      if (!f) { hist.length = 0; onPitch(null); return; }
+      hist.push(f); if (hist.length > 5) hist.shift();
+      onPitch(hist.slice().sort((x, y) => x - y)[hist.length >> 1]);
+    }, 80);
+    mic = { stream, src, timer };
+  }
+  function micStop() {
+    if (!mic) return;
+    clearInterval(mic.timer);
+    mic.stream.getTracks().forEach((t) => t.stop());
+    try { mic.src.disconnect(); } catch (e) {}
+    mic = null;
+  }
+
+  W.audio = { ensure, now, pluck, strum, click, strumChord, playNote, sequence, PATTERNS, play, stop, toggle, player, tone, toneStop, detectPitch, micAvailable, micStart, micStop };
 })();

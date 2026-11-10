@@ -75,7 +75,7 @@
     const keyLabel = j.feel === 'minor' ? T.minorKeyName(j.key) + ' minor' : T.keyName(j.key) + (blues ? ' blues' : ' major');
     const mixChip = (k, l) => `<button type="button" class="chip${j[k] ? ' on' : ''}" data-act="jamMix" data-k="${k}" aria-pressed="${j[k]}">${l}</button>`;
     return `<div class="head"><span class="eyebrow">Jam room</span><h1>${P(keyLabel)}</h1>
-        <p class="lede">A band that never gets tired. Strum along with the chords, or take the lead: every dot on the neck is a safe note, and the <strong>ringed</strong> ones belong to the chord playing right now.</p></div>
+        <p class="lede">A band that never gets tired. Strum along with the chords, or take the lead: every dot on the neck is a safe note, and the <strong>ringed</strong> ones are ${W.term('chordtone', 'chord tones')}: they belong to the chord playing right now.</p></div>
       ${j.custom ? `<div class="row"><span class="tag">Your song</span><strong>${esc(j.custom.title)}</strong><button type="button" class="btn sm quiet" data-act="jamClear">Back to the standard loops</button></div>` : `
       <div class="row" style="gap:20px 28px;align-items:flex-start">
         <div class="stack tight"><span class="label">Feel</span>${chips([{ v: 'major', l: 'Major' }, { v: 'minor', l: 'Minor' }, { v: 'blues', l: 'Blues' }], j.feel, 'jamSet', 'data-k="feel"')}</div>
@@ -135,6 +135,10 @@
     const key = kind, prev = S.drills.best[key] || 0;
     run.best = Math.max(prev, run.score);
     S.drills.best[key] = run.best;
+    const ns = U.tr.notes;
+    if (kind === 'notes' && run.score >= 9 && ns.strings.includes(0) && ns.strings.includes(1)) { W.goalHit('notes65'); if (!ns.nat) W.goalHit('notes65s'); }
+    if (kind === 'keys' && run.score >= 8) W.goalHit('keys8');
+    if (kind.indexOf('ear') === 0 && run.score >= 9) W.goalHit('ear9');
     W.logBlock('w');
   }
   function roundBar(run) {

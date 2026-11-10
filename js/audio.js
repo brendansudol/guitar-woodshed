@@ -5,6 +5,7 @@
   let ctx = null, master = null, noise = null;
   const bufs = {};
   const stringVoice = [null, null, null, null, null, null];
+  const STRING_GAIN = 0.8;
 
   function ensure() {
     if (!ctx) {
@@ -12,10 +13,11 @@
       if (!AC) return null;
       ctx = new AC();
       master = ctx.createGain();
-      master.gain.value = 0.85;
-      const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -14; comp.ratio.value = 4;
-      master.connect(comp); comp.connect(ctx.destination);
+      master.gain.value = 0.8;
+      /* A limiter that only acts on the loudest moments, so the band cannot clip. Levels are set so it is rarely needed. */
+      const limit = ctx.createDynamicsCompressor();
+      limit.threshold.value = -4; limit.knee.value = 4; limit.ratio.value = 20; limit.attack.value = 0.002; limit.release.value = 0.12;
+      master.connect(limit); limit.connect(ctx.destination);
       const len = ctx.sampleRate;
       noise = ctx.createBuffer(1, len, ctx.sampleRate);
       const d = noise.getChannelData(0);
@@ -26,44 +28,88 @@
   }
   const now = () => (ctx ? ctx.currentTime : 0);
 
+  /* One plucked steel string, built from its partials (the fundamental and the overtones above it).
+     The numbers were set by measuring recordings of a real acoustic guitar: the fundamental and second partial carry
+     most of the level, upper partials fall away and die faster, wound strings ring longer than plain ones,
+     and every note is in tune to within a cent. Deterministic, so a note sounds the same every time. */
+  const NOTE_LEN = 3.4;
+  function fundamentalDecay(midi) { // dB per second
+    if (midi <= 50) return 2.6;
+    if (midi <= 57) return 2.6 + ((midi - 50) / 7) * 8.4;
+    return 11 + (midi - 57) * 0.15;
+  }
   function stringBuffer(midi) {
     if (bufs[midi]) return bufs[midi];
-    const sr = ctx.sampleRate;
-    const freq = 440 * Math.pow(2, (midi - 69) / 12);
-    const N = Math.max(2, Math.round(sr / freq - 0.5));
-    const actual = sr / (N + 0.5);
-    const len = Math.floor(sr * 2.6);
+    const sr = ctx.sampleRate, f0 = 440 * Math.pow(2, (midi - 69) / 12);
+    const len = Math.floor(sr * NOTE_LEN);
     const buf = ctx.createBuffer(1, len, sr);
     const out = buf.getChannelData(0);
-    const ring = new Float32Array(N);
-    let prev = 0;
-    for (let i = 0; i < N; i++) { const n = Math.random() * 2 - 1; prev = prev * 0.45 + n * 0.55; ring[i] = prev; }
-    const decay = 0.9945 + 0.0045 * Math.min(1, Math.max(0, (midi - 40) / 34));
-    let idx = 0;
-    for (let i = 0; i < len; i++) {
-      const nxt = idx + 1 === N ? 0 : idx + 1;
-      const v = ring[idx];
-      ring[idx] = decay * 0.5 * (v + ring[nxt]);
-      out[i] = v;
-      idx = nxt;
+    const pos = 0.19 + 0.035 * Math.sin(midi * 1.9);      // where along the string it is plucked
+    const stiff = 0.00005;                                 // stiff strings: overtones run very slightly sharp
+    const base = fundamentalDecay(midi);
+    const top = Math.min(5200, sr * 0.45);
+    const tilt = 1.55 - 0.45 * Math.min(1, Math.max(0, (midi - 50) / 14)); // plain strings keep more of their overtones
+    for (let k = 1; k * f0 < top; k++) {
+      const fk = k * f0 * Math.sqrt(1 + stiff * k * k);
+      const body = (fk * fk) / (fk * fk + 115 * 115) / Math.sqrt(1 + Math.pow(fk / 4200, 4)); // the guitar body: weak below ~100 Hz, soft top end
+      const amp = (Math.max(Math.abs(Math.sin(k * Math.PI * pos)), 0.14) / Math.pow(k, tilt)) * body;
+      const rate = base + 24 * ((fk - f0) / 1000);        // higher partials die faster
+      /* Each partial is two slightly detuned parts: a strong one that fades quickly and a weaker one that lingers.
+         That gives the note a firm start, a long tail and a little movement. */
+      const parts = k <= 12 ? [[0.72, 1, -0.00014], [0.28, 0.5, 0.00036]] : [[1, 1, 0]]; // the lingering part only matters low down
+      parts.forEach(([share, slow, detune]) => {
+        const r = Math.pow(10, -(rate * slow) / 20 / sr), w = (2 * Math.PI * fk * (1 + detune)) / sr;
+        const n = Math.min(len, Math.ceil((60 / (rate * slow)) * sr));
+        const c1 = 2 * r * Math.cos(w), c2 = r * r;
+        let y1 = 0, y2 = -amp * share * Math.sin(w) / r;   // damped sine starting at zero
+        for (let i = 0; i < n; i++) { const y = c1 * y1 - c2 * y2; out[i] += y; y2 = y1; y1 = y; }
+      });
     }
-    const fade = Math.floor(sr * 0.15);
-    for (let i = 0; i < fade; i++) out[len - 1 - i] *= i / fade;
-    return (bufs[midi] = { buf, rate: freq / actual });
+    /* The pick or fingertip leaving the string: a few milliseconds of soft noise. */
+    let seed = midi * 9301 + 49297, lp = 0, peak = 0;
+    const nz = Math.floor(sr * 0.012);
+    for (let i = 0; i < len; i++) { const a = Math.abs(out[i]); if (a > peak) peak = a; }
+    for (let i = 0; i < nz; i++) {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      const white = seed / 0x3fffffff - 1;
+      lp += 0.35 * (white - lp);
+      out[i] += lp * peak * 0.22 * Math.pow(1 - i / nz, 2);
+    }
+    /* Same loudness for every note, so chords balance. */
+    let sum = 0;
+    const win = Math.floor(sr * 0.3);
+    for (let i = 0; i < win; i++) sum += out[i] * out[i];
+    const gain = 0.16 / Math.sqrt(sum / win);
+    const fade = Math.floor(sr * 0.2);
+    for (let i = 0; i < len; i++) out[i] *= gain * (i > len - fade ? (len - i) / fade : 1);
+    return (bufs[midi] = { buf, rate: 1 });
+  }
+
+  /* Build notes in the background, one at a time, so a new chord never stalls the beat. */
+  let warmQ = [], warmT = null;
+  function warm(midis) {
+    midis.forEach((m) => { if (m != null && !bufs[m] && !warmQ.includes(m)) warmQ.push(m); });
+    if (!warmT && warmQ.length) warmT = setTimeout(warmStep, 30);
+  }
+  function warmStep() {
+    warmT = null;
+    const m = warmQ.shift();
+    if (m != null && ctx) stringBuffer(m);
+    if (warmQ.length) warmT = setTimeout(warmStep, 40);
   }
 
   /* Pluck one note. `string` (0-5) lets a new note on the same string cut the old one, like a real guitar. */
-  function pluck(midi, when, vel = 0.8, string = null, dur = 2.4) {
+  function pluck(midi, when, vel = 0.8, string = null, dur = 3.1) {
     if (!ensure()) return;
     const t = Math.max(when || 0, ctx.currentTime);
     const sb = stringBuffer(midi);
     const src = ctx.createBufferSource();
     src.buffer = sb.buf; src.playbackRate.value = sb.rate;
     const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 1400 + vel * 4200;
+    lp.type = 'lowpass'; lp.frequency.value = 1800 + vel * 5200; // softer playing is darker
     const g = ctx.createGain();
-    g.gain.setValueAtTime(vel * 0.4, t);
-    g.gain.setValueAtTime(vel * 0.4, t + dur - 0.12);
+    g.gain.setValueAtTime(vel * STRING_GAIN, t);
+    g.gain.setValueAtTime(vel * STRING_GAIN, t + dur - 0.3);
     g.gain.linearRampToValueAtTime(0, t + dur);
     src.connect(lp); lp.connect(g); g.connect(master);
     src.start(t); src.stop(t + dur + 0.02);
@@ -142,7 +188,7 @@
     seq.bpm = bpm; seq.swing = swing;
     let step = 0, next = ctx.currentTime + 0.1;
     const tick = () => {
-      while (next < ctx.currentTime + 0.14) {
+      while (next < ctx.currentTime + 0.2) {
         const stepDur = 60 / seq.bpm / 2;
         const t = next + (step % 2 ? seq.swing * stepDur : 0);
         const keepGoing = onStep(step, t, stepDur);
@@ -196,6 +242,8 @@
     const perChord = pk ? pk.p.length : opts.beats * 2;
     const beatLen = perChord === 6 ? 3 : 2;
     const total = voiced.length * perChord;
+    voiced[0].forEach((m) => { if (m != null) stringBuffer(m); }); // the first chord is ready before the loop starts
+    warm(voiced.slice(1).flat());
     const lead = opts.countIn ? 8 : 0;
     let lastChord = -1;
     seqStart({
@@ -222,15 +270,16 @@
         if (o2.click && inBar % 2 === 0) click(t, inBar === 0);
         if (o2.drums) {
           hat(t, inBar % 2 ? 0.1 : 0.17);
-          if (inBar === 0 || inBar === 4 || (inBar === 5 && o2.swing === 0)) kick(t, inBar === 5 ? 0.55 : 0.9);
+          if (inBar === 0 || inBar === 4 || (inBar === 5 && o2.swing === 0)) kick(t, inBar === 5 ? 0.42 : 0.7);
           if (inBar === 2 || inBar === 6) snare(t);
         }
         if (o2.bass) {
           const c = o2.chords[ci];
-          if (inBar === 0) bass(c.root, t, stepDur * 2.6, 0.5);
-          if (inBar === 3) bass(c.root, t, stepDur * 0.9, 0.36);
-          if (inBar === 4) bass(c.root + 7, t, stepDur * 1.8, 0.42);
-          if (inBar === 6) bass(c.root, t, stepDur * 1.6, 0.42);
+          const fifth = (T.Q[c.q].iv.find((x) => x >= 6 && x <= 8)) || 7; // diminished and augmented chords have their own fifth
+          if (inBar === 0) bass(c.root, t, stepDur * 2.6, 0.2);
+          if (inBar === 3) bass(c.root, t, stepDur * 0.9, 0.14);
+          if (inBar === 4) bass(c.root + fifth, t, stepDur * 1.8, 0.16);
+          if (inBar === 6) bass(c.root, t, stepDur * 1.6, 0.16);
         }
       },
       onUi(step) {
@@ -275,19 +324,19 @@
     try { ref.g.gain.cancelScheduledValues(t); ref.g.gain.setTargetAtTime(0, t, 0.04); ref.o1.stop(t + 0.3); ref.o2.stop(t + 0.3); } catch (e) {}
     ref = null;
   }
-  function tone(midi) {
+  function tone(midi, bare) {
     toneStop();
     if (!ensure()) return;
     const f = 440 * Math.pow(2, (midi - 69) / 12), t = ctx.currentTime;
     const g = ctx.createGain(), g2 = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.2, t + 0.1);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.14, t + 0.1);
     g2.gain.value = 0.5; // an octave above, so the low strings are audible on small speakers
     const o1 = ctx.createOscillator(), o2 = ctx.createOscillator();
     o1.type = 'triangle'; o1.frequency.value = f; o2.type = 'sine'; o2.frequency.value = f * 2;
     o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(master);
     o1.start(t); o2.start(t);
     ref = { o1, o2, g };
-    pluck(midi, 0, 0.8);
+    if (!bare) pluck(midi, 0, 0.8);
   }
 
   /* Fundamental frequency of a buffer, or null. Normalized square difference (McLeod), which copes with
@@ -347,5 +396,5 @@
     mic = null;
   }
 
-  W.audio = { ensure, now, pluck, strum, click, strumChord, playNote, sequence, PATTERNS, PICKS, play, stop, toggle, player, tone, toneStop, detectPitch, micAvailable, micStart, micStop };
+  W.audio = { ensure, now, pluck, warm, strum, click, strumChord, playNote, sequence, PATTERNS, PICKS, play, stop, toggle, player, tone, toneStop, detectPitch, micAvailable, micStart, micStop };
 })();

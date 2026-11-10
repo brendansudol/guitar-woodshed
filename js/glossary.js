@@ -27,6 +27,7 @@
     mute: { t: 'Muting', re: /\bmuted?\b/i, d: 'Resting the fretting hand lightly across the strings so they click when strummed and don’t ring. Good for practising rhythm on its own.' },
     bar: { t: 'Bar', re: /\bbar\b/i, d: 'A group of four beats, counted 1, 2, 3, 4. Chords usually change at the start of a bar.' },
     tempo: { t: 'Tempo (bpm)', re: /\bbpm\b/i, d: 'Speed in beats per minute. 60 is one beat a second. Most songs sit between 80 and 130.' },
+    interval: { t: 'Interval', re: /\bintervals?\b/i, d: 'The distance between two notes. A perfect 5th is seven frets, a perfect 4th is five, an octave is twelve.' },
     home: { t: 'Home', d: 'The note or chord a song comes to rest on. The 1 note, or the I chord.' },
     third: { t: 'The 3rd', d: 'The third note of the scale counted from the root. It decides whether a chord is major (bright) or minor (sad): the minor 3rd is one fret lower.' },
     sharpflat: { t: 'Sharp and flat', d: 'Sharp (#) means one fret higher, flat (b) means one fret lower. A# and Bb are the same fret with two names.' },

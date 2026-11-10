@@ -223,7 +223,8 @@
 <li><strong>Follow the bass.</strong> The lowest note at each change is usually the chord’s root.</li></ol>
 <p>You are now choosing between four likely chords, not every chord in existence.</p>`,
       w: { type: 'family' },
-      practice: ['Pick a song you love and have never looked up. Find home on the low E string. Check yourself online afterwards.', 'Do one new song a week this way. This is the skill you came here for.'],
+      practice: ['Solve one loop in Work It Out at level 1. It is this method with the hard parts removed.', 'Pick a song you love and have never looked up. Find home on the low E string. Check yourself online afterwards.', 'Do one new song a week this way. This is the skill you came here for.'],
+      tool: { label: 'Open Work It Out', hash: 'train' },
       quiz: [
         { q: 'The key note of a song usually sounds like…', a: ['the highest note', 'the resting point', 'the first note sung'], c: 1 },
         { q: 'Once you know the key, the chords most likely come from…', a: ['any of the twelve majors', 'that key’s I, IV, V and vi'], c: 1 },
@@ -284,7 +285,8 @@
 <p><strong>Leave space.</strong> Play for two beats, rest for two.<br><strong>Repeat yourself.</strong> Play a short idea, then again with one note changed.<br><strong>Steal rhythm.</strong> Tap the rhythm of a vocal line and play it on two notes.<br><strong>Call and response.</strong> Ask a question that ends on a tense note. Answer it ending on the root.</p>
 <p>Slides, hammer-ons and bends between box notes add the voice. Three notes with good rhythm beat a fast run every time.</p>`,
       w: { type: 'link', label: 'Open the Jam Room', hash: 'jam' },
-      practice: ['The two-note solo: pick two neighbouring box notes and play a full minute using only those. Rhythm is your only tool.', 'Call and response: two bars of question, two bars of answer, for five minutes.'],
+      practice: ['The two-note solo: pick two neighbouring box notes and play a full minute using only those. Rhythm is your only tool.', 'Call and response: two bars of question, two bars of answer, for five minutes.', 'One round of Echo a Phrase: hear a line, play it back. That is how other people’s ideas become yours.'],
+      tool: { label: 'Open Echo a Phrase', hash: 'train' },
       quiz: [
         { q: 'What makes a solo sound musical soonest?', a: ['Speed', 'Rhythm and space', 'Using every note in the scale'], c: 1 },
       ],

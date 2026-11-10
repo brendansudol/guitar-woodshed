@@ -7,7 +7,9 @@
   const KEY_ORDER = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5];
   const keyChips = (path, cur, list = KEY_ORDER) => chips(list.map((pc) => ({ v: pc, l: T.keyName(pc) })), cur, 'set', `data-path="${path}"`);
   const CHORD_CHOICES = ['G', 'C', 'D', 'A', 'E', 'Em', 'Am', 'Dm', 'F', 'Bm', 'F#m', 'B7', 'A7', 'D7', 'E7', 'G7', 'C7', 'Cadd9', 'Dsus4', 'Asus2', 'Fmaj7', 'Am7', 'Em7', 'Bb'];
-  const TOOL_TAB = { '1-2': 'notes', '4-2': 'strum', '5-3': 'ear' };
+  const TOOL_TAB = { '1-2': 'notes', '4-2': 'strum', '5-2': 'work', '5-3': 'ear', '6-4': 'ear' };
+  const TOOL_MODE = { '5-3': 'chord', '6-4': 'echo' };
+  const toolAttrs = (id) => (TOOL_TAB[id] ? ` data-tab="${TOOL_TAB[id]}"` : '') + (TOOL_MODE[id] ? ` data-mode="${TOOL_MODE[id]}"` : '');
 
   /* ---------- Shared blocks (also used by the Keys screen) ---------- */
   function familyBlock(key, scope) {
@@ -48,6 +50,41 @@
       <div class="song-line"><span class="label">It sounds</span><div class="tiles">${pick.map((i) => R.chordTile(b[i].chord, sounding, { cls: 'mini' })).join('')}</div></div>
       <p class="note">The numbers under each chord match. Only the letters moved.</p>
     </div>`;
+  }
+
+  /* ---------- One-minute changes (lesson 4-3 and the Chord Gym) ---------- */
+  const pairKey = (a, b) => [a, b].sort().join(' ↔ ');
+  function changeBests() {
+    const out = {};
+    Object.entries(S.changes).forEach(([k, v]) => { const p = k.split(' ↔ '); const key = p.length === 2 ? pairKey(p[0], p[1]) : k; out[key] = Math.max(out[key] || 0, v); });
+    return out;
+  }
+  function changesBlock(st, path) {
+    const names = S.known.length >= 2 ? S.known : ['G', 'C', 'D', 'Em'];
+    if (!names.includes(st.a)) st.a = names[0];
+    if (!names.includes(st.b) || st.b === st.a) st.b = names.find((n) => n !== st.a);
+    const pair = pairKey(st.a, st.b), all = changeBests(), best = all[pair] || 0;
+    const run = U.chg;
+    const slow = Object.entries(all).sort((x, y) => x[1] - y[1]).slice(0, 3);
+    const untried = [];
+    names.slice(0, 6).forEach((a, i) => names.slice(i + 1, 6).forEach((b) => { if (!all[pairKey(a, b)] && untried.length < 3) untried.push([a, b]); }));
+    const pickBtn = (a, b, label) => `<button type="button" class="chip" data-act="chgPick" data-path="${path}" data-a="${esc(a)}" data-b="${esc(b)}">${label}</button>`;
+    const level = best >= 60 ? 'Fluent.' : best >= 30 ? 'Comfortable. Next stop: 60.' : best ? 'Building. First target: 30.' : 'Not tried yet. First target: 30.';
+    return `<div class="row" style="gap:24px;align-items:flex-start">
+        <div class="stack tight"><span class="label">From</span>${chips(names, st.a, 'set', `data-path="${path}a"`)}</div>
+        <div class="stack tight"><span class="label">To</span>${chips(names.filter((n) => n !== st.a), st.b, 'set', `data-path="${path}b"`)}</div></div>
+      <div class="row" style="gap:28px">
+        <div><div class="stat-n" id="chg-left">${run ? run.left : 60}</div><span class="label">seconds</span></div>
+        <div><div class="stat-n" id="chg-count">${run ? run.count : 0}</div><span class="label">changes</span></div>
+        <div><div class="stat-n muted">${best}</div><span class="label">best ${esc(P(pair))}</span></div>
+      </div>
+      <div class="stack tight" style="max-width:420px"><div class="bar marks"><i style="width:${Math.min(100, (best / 60) * 100)}%"></i></div>
+        <div class="row between small muted"><span>0</span><span>30 comfortable</span><span>60 fluent</span></div><span class="small"><strong>${level}</strong></span></div>
+      <div class="row">${run
+        ? `<button type="button" class="btn primary big" data-act="chgTap">Tap for each clean change</button><button type="button" class="btn quiet" data-act="chgStop">Cancel</button>`
+        : `<button type="button" class="btn primary" data-act="chgStart" data-pair="${esc(pair)}">Start 60 seconds</button>`}</div>
+      ${slow.length ? `<div class="stack tight"><span class="label">Your slowest pairs: work on these</span><div class="chips">${slow.map(([k, v]) => { const p = k.split(' ↔ '); return pickBtn(p[0], p[1], `${esc(P(k))} · ${v}`); }).join('')}</div></div>` : ''}
+      ${untried.length ? `<div class="stack tight"><span class="label">Not measured yet</span><div class="chips">${untried.map(([a, b]) => pickBtn(a, b, esc(P(pairKey(a, b))))).join('')}</div></div>` : ''}`;
   }
 
   /* ---------- Lesson widgets ---------- */
@@ -154,25 +191,8 @@
           <div class="transport">${R.playBtn(id, 'Play along')}
             <label class="field"><span class="label">Tempo <span data-out="${path}bpm">${st.bpm}</span> bpm</span><input id="w-bpm" type="range" min="50" max="150" value="${st.bpm}" data-on="range" data-path="${path}bpm" data-live="bpm"></label></div>`;
       }
-      case 'changes': {
-        const names = S.known.length >= 2 ? S.known : ['G', 'C', 'D', 'Em'];
-        def('a', names[0]); def('b', names[1]);
-        const pair = st.a + ' ↔ ' + st.b, best = S.changes[pair] || 0;
-        const run = U.chg;
-        const bests = Object.entries(S.changes).sort((x, y) => y[1] - x[1]).slice(0, 6);
-        return `<div class="row" style="gap:24px;align-items:flex-start">
-            <div class="stack tight"><span class="label">From</span>${chips(names, st.a, 'set', `data-path="${path}a"`)}</div>
-            <div class="stack tight"><span class="label">To</span>${chips(names, st.b, 'set', `data-path="${path}b"`)}</div></div>
-          <div class="row" style="gap:28px">
-            <div><div class="stat-n" id="chg-left">${run ? run.left : 60}</div><span class="label">seconds</span></div>
-            <div><div class="stat-n" id="chg-count">${run ? run.count : 0}</div><span class="label">changes</span></div>
-            <div><div class="stat-n muted">${best}</div><span class="label">best ${esc(P(pair))}</span></div>
-          </div>
-          <div class="row">${run
-            ? `<button type="button" class="btn primary big" data-act="chgTap">Tap for each clean change</button><button type="button" class="btn quiet" data-act="chgStop">Cancel</button>`
-            : `<button type="button" class="btn primary" data-act="chgStart" data-pair="${esc(pair)}">Start 60 seconds</button>`}</div>
-          ${bests.length ? `<div class="stack tight"><span class="label">Your bests</span><div class="legend">${bests.map(([k, v]) => `<span class="pair"><strong>${v}</strong> ${esc(P(k))}</span>`).join('')}</div></div>` : ''}`;
-      }
+      case 'changes':
+        return changesBlock(st, path);
       case 'hearfn': {
         def('key', 7);
         const fam = T.diatonic(st.key), names = (ix) => ix.map((i) => fam[i].chord.name).join(' ');
@@ -243,7 +263,7 @@
           <div class="stack tight"><span class="label">Now compare: the numbers in other songs</span>${rows || '<p class="note">Your Songbook is empty. Decode a second song to compare.</p>'}</div>`;
       }
       case 'link':
-        return `<div class="row"><button type="button" class="btn primary" data-act="go" data-hash="${w.hash}"${TOOL_TAB[l.id] ? ` data-tab="${TOOL_TAB[l.id]}"` : ''}>${esc(w.label)} →</button></div>`;
+        return `<div class="row"><button type="button" class="btn primary" data-act="go" data-hash="${w.hash}"${w.hash === 'train' ? toolAttrs(l.id) : ''}>${esc(w.label)} →</button></div>`;
     }
     return '';
   }
@@ -271,6 +291,7 @@
     },
     chgTap() { if (!U.chg) return; U.chg.count++; const e = document.getElementById('chg-count'); if (e) e.textContent = U.chg.count; },
     chgStop() { chgEnd(false); W.render(); },
+    chgPick(el) { chgEnd(false); W.setPath(el.dataset.path + 'a', el.dataset.a); W.setPath(el.dataset.path + 'b', el.dataset.b); W.render(); },
     seq(el) { A.sequence(el.dataset.chords.split(' ').map(T.parseChord).filter(Boolean)); },
     openLesson(el) { A.stop(); U.lesson = el.dataset.id; if (location.hash !== '#path') location.hash = 'path'; else W.render(); window.scrollTo(0, 0); },
     closeLesson() { A.stop(); U.lesson = null; W.render(); window.scrollTo(0, 0); },
@@ -328,7 +349,7 @@
       <section class="panel"><span class="label">Try it</span>${widget(l)}</section>
       <section class="stack"><h2>On your guitar</h2>
         ${l.practice.map((p, i) => { const k = l.id + ':' + i, on = !!S.prac[k]; return `<label class="check${on ? ' done' : ''}"><input type="checkbox" id="prac-${l.id}-${i}" data-act="prac" data-k="${k}"${on ? ' checked' : ''}><span>${W.linkTerms(esc(p))}</span></label>`; }).join('')}
-        ${l.tool ? `<div class="row"><button type="button" class="btn sm" data-act="go" data-hash="${l.tool.hash}"${TOOL_TAB[l.id] ? ` data-tab="${TOOL_TAB[l.id]}"` : ''}>${esc(l.tool.label)} →</button></div>` : ''}
+        ${l.tool ? `<div class="row"><button type="button" class="btn sm" data-act="go" data-hash="${l.tool.hash}"${toolAttrs(l.id)}>${esc(l.tool.label)} →</button></div>` : ''}
       </section>
       <section class="stack"><h2>Check yourself</h2>
         ${l.quiz.map((q, qi) => {
@@ -364,16 +385,20 @@
 
   /* ---------- Today ---------- */
   const stageOf = (n) => W.STAGES.find((s) => s.n === n);
-  const WARM = {
-    0: ['notes', 'Note Finder', 'A first try: ten notes on the two thickest strings. Guessing is fine. This is your starting line.'],
-    1: ['notes', 'Note Finder', 'Ten notes on the low E and A strings. Say each name out loud as you find it.'],
-    2: ['notes', 'Note Finder', 'Ten notes on the low E and A strings. You need these roots for every chord you build.'],
-    3: ['keys', 'Key Chords', 'Ten quick questions like “what’s the IV in A?”. Go for speed, not certainty.'],
-    4: ['strum', 'Strum Lab', 'Mute the strings. A minute of straight down-up, then a minute of Old Faithful.'],
-    5: ['ear', 'Ear Trainer', 'Ten mystery chords. Feel each one against home before you answer.'],
-    6: ['ear', 'Ear Trainer', 'Ten mystery chords. Hearing the changes tells you which note to land on.'],
-    7: ['notes', 'Note Finder', 'Ten notes, all six strings. Barre chords are only as fast as your note names.'],
-  };
+  /* Warm-ups rotate through every practice area, whatever stage you are on. `min` is the first stage a drill makes sense at. */
+  const ROTA = [
+    { min: 0, tab: 'notes', title: 'Note Finder', text: 'Ten notes on the low E and A strings. Say each name out loud as you find it.' },
+    { min: 0, tab: 'strum', title: 'Strum Lab', text: 'Mute the strings. A minute of steady down-up with the click, then a minute of Old Faithful.' },
+    { min: 0, tab: 'ear', mode: 'echo', title: 'Echo a phrase', text: 'Hear a short phrase and play it back on the neck. This is how a riff gets from your head to your hands.' },
+    { min: 0, tab: 'chords', title: 'One-minute changes', text: 'Sixty seconds on your slowest chord pair. Count the clean changes and beat your best.' },
+    { min: 0, tab: 'ear', mode: 'interval', title: 'Find the second note', text: 'You hear two notes and see the first. Find the second by ear.' },
+    { min: 2, tab: 'ear', mode: 'chord', title: 'Name the chord', text: 'Ten mystery chords. Feel each one against home before you answer.' },
+    { min: 3, tab: 'keys', title: 'Key Chords', text: 'Ten quick questions like “what’s the IV in A?”. Go for speed, not certainty.' },
+    { min: 3, tab: 'work', title: 'Work It Out', text: 'One loop, no chart. Find home on the thick strings, then name the chords.' },
+  ];
+  const AREA = { notes: 'neck', strum: 'rhythm', ear: 'ear', chords: 'chords', keys: 'keys', work: 'ear' };
+  const warmFor = (stageN, dn) => { const ok = ROTA.filter((r) => stageN >= r.min); return ok[dn % ok.length]; };
+  const MEM_TARGET = 5;
   function applyTask(stage, song, an) {
     if (!song) return ['Add a song you play', 'Put one song you already know into the Songbook. Every stage has you apply the new idea to a real song.'];
     const t = esc(song.title);
@@ -397,9 +422,11 @@
     const hold = W.holdStage();
     const day = S.log[W.dayKey()] || {};
     const dn = Math.floor(Date.now() / 864e5);
-    const song = S.songs.length ? S.songs[dn % S.songs.length] : null;
+    const pool = S.songs.filter((x) => x.status !== 'mem'), songList = pool.length ? pool : S.songs;
+    const song = songList.length ? songList[dn % songList.length] : null;
+    const mem = S.songs.filter((x) => x.status === 'mem').length;
     const an = song ? W.analyze(song) : null;
-    const warm = WARM[stageN], app = applyTask(stageN, song, an);
+    const warm = warmFor(stageN, dn), app = applyTask(stageN, song, an);
     const jamKey = an ? an.key : 7;
     const doneCount = W.LESSONS.filter((l) => S.lessons[l.id]).length;
     const date = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
@@ -424,18 +451,18 @@
 
     return `<div class="head"><span class="eyebrow">${esc(date)} · ${stageN ? `Stage ${stageN} of 7 · ` : ''}${esc(stage.title)}</span>
         <h1>Today’s twenty minutes</h1>
-        <p class="lede">${S.onboarded ? esc(stage.why) : 'You can already play songs. This course teaches the system underneath them, so the next song takes an afternoon and a jam with friends stops being scary. Four short blocks a day, each feeding the next.'}</p></div>
+        <p class="lede">${S.onboarded ? esc(stage.why) : 'You can already play songs. This course teaches the system underneath them, so the next song takes an afternoon and a jam with friends stops being scary. Four short blocks a day, with the biggest one spent on real songs.'}</p></div>
       ${setup ? setupPanel : ''}
       <div class="row" style="gap:10px 14px"><a class="btn sm" href="#tune">Tune up first</a>${S.guideSeen ? '' : '<a class="btn sm" href="#guide">How to read this app</a>'}
         <span class="note">${S.guideSeen ? 'Thirty seconds. Everything sounds wrong on an out-of-tune guitar.' : 'New here? Tune up, then take one minute to learn how to read the diagrams.'}</span></div>
       <div class="cols">
         <div class="session">
-          ${block('w', 3, 'warm up', esc(warm[1]), esc(warm[2]), `<button type="button" class="btn sm" data-act="go" data-hash="train" data-tab="${warm[0]}">Start</button>`)}
+          ${block('w', 3, 'warm up · ' + AREA[warm.tab], esc(warm.title), esc(warm.text) + ' A different area comes up each day.', `<button type="button" class="btn sm" data-act="go" data-hash="train" data-tab="${warm.tab}"${warm.mode ? ` data-mode="${warm.mode}"` : ''}>Start</button>`)}
           ${hold
-            ? block('l', 7, 'practise', `Stay on stage ${hold.n} until it sticks`, `${esc(hold.text)} You’re at ${hold.have} of ${hold.need} ${hold.unit}. Reading the lessons was the quick part.`, W.goBtn(hold.go, 'sm primary') + (nl ? `<button type="button" class="btn sm quiet" data-act="openLesson" data-id="${nl.id}">Next lesson anyway</button>` : ''))
-            : block('l', nl ? nl.mins : 7, 'learn', nl ? esc(nl.title) : 'Revisit any lesson', nl ? (nl.stage ? `Stage ${nl.stage}, the next step on the path. Read, try the demo, do the check.` : 'The first step: five minutes with one of your own songs.') : 'You’ve finished the path. Pick the lesson that still feels shaky.', nl ? `<button type="button" class="btn sm primary" data-act="openLesson" data-id="${nl.id}">Open lesson</button>` : `<button type="button" class="btn sm" data-act="go" data-hash="path">Open path</button>`)}
-          ${block('a', 5, 'apply', app[0], app[1], `<button type="button" class="btn sm" data-act="go" data-hash="songs">Songbook</button>`)}
-          ${block('j', 5, 'play', `Jam in ${P(T.keyName(jamKey))}`, 'Backing band on, no goal. Strum along, then try a few notes from the box. This is the part that makes it music.', `<button type="button" class="btn sm" data-act="jamIn" data-key="${jamKey}">Jam Room</button>`)}
+            ? block('l', 5, 'practise', `Stay on stage ${hold.n} until it sticks`, `${esc(hold.text)} You’re at ${hold.have} of ${hold.need} ${hold.unit}. Reading the lessons was the quick part.`, W.goBtn(hold.go, 'sm primary') + (nl ? `<button type="button" class="btn sm quiet" data-act="openLesson" data-id="${nl.id}">Next lesson anyway</button>` : ''))
+            : block('l', 5, 'learn', nl ? esc(nl.title) : 'Revisit any lesson', nl ? (nl.stage ? `Stage ${nl.stage}, the next step on the path. Read, try the demo, do the check.` : 'The first step: five minutes with one of your own songs.') : 'You’ve finished the path. Pick the lesson that still feels shaky.', nl ? `<button type="button" class="btn sm primary" data-act="openLesson" data-id="${nl.id}">Open lesson</button>` : `<button type="button" class="btn sm" data-act="go" data-hash="path">Open path</button>`)}
+          ${block('a', 8, 'songs', app[0], app[1] + (song ? ` Then play it start to finish without stopping, and once without looking at the chords. <strong>${mem} of ${MEM_TARGET}</strong> songs from memory so far.` : ''), `<button type="button" class="btn sm" data-act="go" data-hash="songs">Songbook</button>`)}
+          ${block('j', 4, 'play', `Jam in ${P(T.keyName(jamKey))}`, 'Backing band on, no goal. Strum along, then try a few notes from the box. This is the part that makes it music.', `<button type="button" class="btn sm" data-act="jamIn" data-key="${jamKey}">Jam Room</button>`)}
         </div>
         <aside class="stack" style="gap:22px">
           <div class="row" style="gap:26px;align-items:flex-end">
@@ -444,7 +471,7 @@
           </div>
           <div class="stats">
             <div><div class="stat-n">${doneCount}</div><span class="label">of ${W.LESSONS.length} lessons</span></div>
-            <div><div class="stat-n">${S.songs.filter((s) => !s.example).length}</div><span class="label">songs decoded</span></div>
+            <div><div class="stat-n">${mem}</div><span class="label">of ${MEM_TARGET} songs from memory</span></div>
             <div><div class="stat-n">${noteStats[1] ? Math.round((noteStats[0] / noteStats[1]) * 100) + '%' : '–'}</div><span class="label">note accuracy</span></div>
           </div>
           <div class="stack tight"><div class="row between"><span class="label">The path</span><a class="small" href="#path">See all</a></div>
@@ -456,5 +483,5 @@
   };
 
   W.ON.decodeText = function () { W.ACT.decodeGo(); };
-  Object.assign(W, { keyChips, familyBlock, progList, capoWays, capoTable, KEY_ORDER });
+  Object.assign(W, { keyChips, familyBlock, progList, capoWays, capoTable, KEY_ORDER, changesBlock });
 })();

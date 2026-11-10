@@ -85,6 +85,7 @@
         ${outside.length ? `<p class="note"><strong>Outside the key:</strong> ${outside.map((c) => `${P(c.name)} (${P(T.numeral(c, an.key))})`).join(', ')}. That’s the surprise in this song. Listen for the moment it arrives.</p>` : ''}
         <p class="note">${fresh.length ? `<strong>New to you:</strong> ${fresh.map((c) => P(c.name)).join(', ')} (dashed).` : 'You already play every chord in this.'}</p>
       </div>
+      <div class="row"><span class="label">How well do you know it?</span>${chips([{ v: 'learn', l: 'Learning' }, { v: 'play', l: 'Can play through' }, { v: 'mem', l: 'From memory' }], song.status || 'learn', 'songStatus', `data-id="${song.id}"`)}</div>
       <div class="row">${R.playBtn(id, 'Play', 'sm')}
         <button type="button" class="btn sm" data-act="jamSong" data-id="${song.id}">Jam on it</button>
         <span class="row" style="gap:4px"><button type="button" class="btn sm quiet" data-act="songTr" data-id="${song.id}" data-d="-1" aria-label="Down one key">−</button>
@@ -123,8 +124,12 @@
     const core = ['I', 'IV', 'V', 'vi'].reduce((a, n) => a + (counts[n] || 0), 0);
     const degOf = (n) => T.DEG_OF[T.NUM.findIndex((x) => x.toLowerCase() === n.replace('°', '').toLowerCase())] || 0;
     const hasEx = S.songs.some((s) => s.example);
+    const mem = S.songs.filter((s) => s.status === 'mem').length, MEM = 5;
     return `<div class="head"><span class="eyebrow">Songbook · ${S.songs.length} song${S.songs.length === 1 ? '' : 's'}</span><h1>Your songs, decoded</h1>
         <p class="lede">Type in the chords of a song you play. The app finds the key, turns every chord into its ${W.term('numeral', 'number')}, names the pattern, and shows what it shares with the rest of your songs.</p></div>
+      <div class="goal${mem >= MEM ? ' met' : ''}"><span class="label">${mem >= MEM ? 'Target reached' : 'Standing target'}</span>
+        <p>Five songs you can play start to finish from memory. That is a set you can pull out anywhere, and every stage of the course gets practised on them.</p>
+        <div class="row"><div class="bar"><i style="width:${Math.min(100, (mem / MEM) * 100)}%"></i></div><span class="mono small">${Math.min(mem, MEM)} of ${MEM} songs</span></div></div>
       ${U.songs.edit ? songForm() : `<div class="row"><button type="button" class="btn primary" data-act="songNew">Add a song</button>
         ${hasEx ? '<button type="button" class="btn quiet" data-act="songClearEx">Remove the examples</button>' : ''}</div>`}
       ${total ? `<section class="panel"><div class="cols" style="gap:24px">
@@ -158,6 +163,7 @@
       W.render();
       Object.keys(keep).forEach((k) => { const e = document.getElementById('song-' + k); if (e) e.value = keep[k]; });
     },
+    songStatus(el) { const s = S.songs.find((x) => x.id === el.dataset.id); if (s) { s.status = el.dataset.v; W.save(); W.render(); } },
     songDel(el) {
       const id = el.dataset.id;
       if (U.songs.del !== id) { U.songs.del = id; W.render(); return; }

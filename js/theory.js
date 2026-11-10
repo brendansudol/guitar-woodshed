@@ -203,6 +203,22 @@
   }
   const voicingMidis = (v) => v.frets.map((f, s) => (f < 0 ? null : TUNING[s] + f));
 
+  /* Fingerstyle: the string each picking-hand voice plays for a chord shape.
+     R is the lowest root, under the thumb. A is the thumb's second bass string. i, m, a are index, middle, ring.
+     `alt` says the pattern rocks the thumb between R and A; on D-type shapes that takes the G string away from the index finger. */
+  function pickMap(ch, v, alt) {
+    v = v || voicing(ch);
+    const fr = v.frets, on = (s) => s >= 0 && s < 6 && fr[s] >= 0;
+    let R = [0, 1, 2].find((s) => on(s) && (TUNING[s] + fr[s]) % 12 === ch.root);
+    if (R === undefined) R = fr.findIndex((f) => f >= 0);
+    let A = R <= 1 ? 2 : R + 1;
+    if (!on(A)) { A = [R + 1, R + 2, R - 1].find(on); if (A === undefined) A = R; }
+    const want = alt && A >= 3 ? { i: 4, m: 5, a: 5 } : { i: 3, m: 4, a: 5 };
+    const out = { R, A };
+    Object.keys(want).forEach((k) => { let s = want[k]; while (s > R && !on(s)) s--; out[k] = s; });
+    return out;
+  }
+
   /* ---------- Progression library (semitones above the major-key tonic) ---------- */
   const P = (list) => list.map(([d, q]) => ({ d, q: q || 'maj' }));
   const PROGS = [
@@ -243,6 +259,6 @@
   W.T = {
     SHARP, FLAT, TUNING, STRING_NAMES, STRING_ORD, SCALES, IVL, DEG_OF, Q, PROGS, NUM,
     mod, noteName, keyFlats, keyName, minorKeyName, pretty, parseNote, chord, parseChord, numeral, degreeOf,
-    diatonic, detectKey, voicing, voicingMidis, progChords, matchProg,
+    diatonic, detectKey, voicing, voicingMidis, pickMap, progChords, matchProg,
   };
 })();

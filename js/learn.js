@@ -7,7 +7,7 @@
   const KEY_ORDER = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5];
   const keyChips = (path, cur, list = KEY_ORDER) => chips(list.map((pc) => ({ v: pc, l: T.keyName(pc) })), cur, 'set', `data-path="${path}"`);
   const CHORD_CHOICES = ['G', 'C', 'D', 'A', 'E', 'Em', 'Am', 'Dm', 'F', 'Bm', 'F#m', 'B7', 'A7', 'D7', 'E7', 'G7', 'C7', 'Cadd9', 'Dsus4', 'Asus2', 'Fmaj7', 'Am7', 'Em7', 'Bb'];
-  const TOOL_TAB = { '1-2': 'notes', '4-2': 'strum', '5-2': 'work', '5-3': 'ear', '6-4': 'ear' };
+  const TOOL_TAB = { '1-2': 'notes', '4-2': 'strum', '5-2': 'work', '5-3': 'ear', '6-4': 'ear', 'f-1': 'pick', 'f-2': 'pick', 'f-3': 'pick', 'f-5': 'pick' };
   const TOOL_MODE = { '5-3': 'chord', '6-4': 'echo' };
   const toolAttrs = (id) => (TOOL_TAB[id] ? ` data-tab="${TOOL_TAB[id]}"` : '') + (TOOL_MODE[id] ? ` data-mode="${TOOL_MODE[id]}"` : '');
 
@@ -265,7 +265,8 @@
       case 'link':
         return `<div class="row"><button type="button" class="btn primary" data-act="go" data-hash="${w.hash}"${w.hash === 'train' ? toolAttrs(l.id) : ''}>${esc(w.label)} →</button></div>`;
     }
-    return '';
+    /* Demos registered by later files (fingerstyle). */
+    return W.WIDGETS && W.WIDGETS[w.type] ? W.WIDGETS[w.type](l, st, path) : '';
   }
 
   /* ---------- One-minute changes ---------- */
@@ -301,7 +302,8 @@
       const id = el.dataset.id;
       S.lessons[id] = Date.now();
       W.logBlock('l');
-      const i = W.LESSONS.findIndex((l) => l.id === id), cur = W.LESSONS[i], next = W.LESSONS[i + 1];
+      const cur = W.ALL.find((l) => l.id === id);
+      const list = cur.side ? W.SIDE.filter((l) => l.stage === cur.stage) : W.LESSONS, next = list[list.indexOf(cur) + 1];
       /* At the end of a stage, stop at its target instead of rolling straight into the next stage. */
       const g = W.goal(cur.stage), hold = (!next || next.stage !== cur.stage) && g && !g.met;
       U.lesson = next && !hold ? next.id : null;
@@ -337,12 +339,12 @@
   /* ---------- Path ---------- */
   function lessonView(l) {
     const stage = stageOf(l.stage);
-    const inStage = W.LESSONS.filter((x) => x.stage === l.stage);
+    const inStage = W.ALL.filter((x) => x.stage === l.stage);
     const qs = U.q[l.id] || {};
     const done = !!S.lessons[l.id];
     return `<div class="head">
         <div class="row"><button type="button" class="btn sm quiet" data-act="closeLesson">← All lessons</button></div>
-        <span class="eyebrow">${l.stage ? `Stage ${l.stage} · ${esc(stage.title)} · Lesson ${inStage.indexOf(l) + 1} of ${inStage.length}` : esc(stage.title)} · ${l.mins} min</span>
+        <span class="eyebrow">${l.stage ? `${l.side ? 'Side track' : 'Stage ' + l.stage} · ${esc(stage.title)} · Lesson ${inStage.indexOf(l) + 1} of ${inStage.length}` : esc(stage.title)} · ${l.mins} min</span>
         <h1>${esc(l.title)}</h1>
       </div>
       <div class="prose">${W.linkTerms(l.body)}</div>
@@ -364,10 +366,12 @@
   }
 
   W.VIEWS.path = function () {
-    const open = U.lesson && W.LESSONS.find((l) => l.id === U.lesson);
+    const open = U.lesson && W.ALL.find((l) => l.id === U.lesson);
     if (open) return lessonView(open);
     const next = W.LESSONS.find((l) => !S.lessons[l.id]);
-    return `<div class="head"><span class="eyebrow">The path · 7 stages · ${W.LESSONS.length} lessons</span>
+    const rows = (ls, nx, tag) => `<div class="lessons">${ls.map((l) => `<button type="button" class="lesson-row${S.lessons[l.id] ? ' done' : ''}${nx && nx.id === l.id ? ' next' : ''}" data-act="openLesson" data-id="${l.id}">
+              <span class="tick"></span><span>${esc(l.title)}${nx && nx.id === l.id && tag ? ` <span class="tag">${tag}</span>` : ''}</span><span class="mins">${l.mins} min</span></button>`).join('')}</div>`;
+    return `<div class="head"><span class="eyebrow">The path · 7 stages · ${W.LESSONS.length} lessons · ${W.TRACKS.length} side track</span>
         <h1>Each stage is built on the last</h1>
         <p class="lede">Song tutorials teach you where to put your fingers. This teaches why they go there, in the order that makes every new thing attach to something you already know. Skip ahead if a stage is old news; come back when something later doesn’t click. Reading a stage takes minutes and the skill takes longer, so each stage ends with a target to reach before you move on.</p></div>
       <div>${W.STAGES.map((st) => {
@@ -376,15 +380,23 @@
         return `<section id="stage-${st.n}" class="stage${allDone ? ' done-all' : ''}">
           <div class="stage-n">${st.n}</div>
           <div class="stack tight"><h2>${esc(st.title)}</h2><p class="muted" style="max-width:62ch">${esc(st.why)}</p>
-            <div class="lessons">${ls.map((l) => `<button type="button" class="lesson-row${S.lessons[l.id] ? ' done' : ''}${next && next.id === l.id ? ' next' : ''}" data-act="openLesson" data-id="${l.id}">
-              <span class="tick"></span><span>${esc(l.title)}${next && next.id === l.id ? ' <span class="tag">Up next</span>' : ''}</span><span class="mins">${l.mins} min</span></button>`).join('')}</div>
+            ${rows(ls, next, 'Up next')}
             ${W.goalBlock(st.n)}
+          </div></section>`;
+      }).join('')}
+      ${W.TRACKS.map((tr) => {
+        const ls = W.SIDE.filter((l) => l.stage === tr.n), started = ls.some((l) => S.lessons[l.id]);
+        return `<section id="stage-${tr.n}" class="stage side${ls.every((l) => S.lessons[l.id]) ? ' done-all' : ''}">
+          <div class="stage-n">${tr.mark}</div>
+          <div class="stack tight"><div class="row"><h2>${esc(tr.title)}</h2><span class="tag">Side track</span></div><p class="muted" style="max-width:62ch">${esc(tr.why)}</p>
+            ${rows(ls, started ? ls.find((l) => !S.lessons[l.id]) : null, 'Up next')}
+            ${W.goalBlock(tr.n)}
           </div></section>`;
       }).join('')}</div>`;
   };
 
   /* ---------- Today ---------- */
-  const stageOf = (n) => W.STAGES.find((s) => s.n === n);
+  const stageOf = (n) => W.STAGES.concat(W.TRACKS).find((s) => s.n === n);
   /* Warm-ups rotate through every practice area, whatever stage you are on. `min` is the first stage a drill makes sense at. */
   const ROTA = [
     { min: 0, tab: 'notes', title: 'Note Finder', text: 'Ten notes on the low E and A strings. Say each name out loud as you find it.' },
@@ -395,8 +407,9 @@
     { min: 2, tab: 'ear', mode: 'chord', title: 'Name the chord', text: 'Ten mystery chords. Feel each one against home before you answer.' },
     { min: 3, tab: 'keys', title: 'Key Chords', text: 'Ten quick questions like “what’s the IV in A?”. Go for speed, not certainty.' },
     { min: 3, tab: 'work', title: 'Work It Out', text: 'One loop, no chart. Find home on the thick strings, then name the chords.' },
+    { min: 2, tab: 'pick', title: 'Pick Lab', text: 'One picking pattern over two chords, slower than feels necessary. Thumb on the root, one finger per thin string.' },
   ];
-  const AREA = { notes: 'neck', strum: 'rhythm', ear: 'ear', chords: 'chords', keys: 'keys', work: 'ear' };
+  const AREA = { notes: 'neck', strum: 'rhythm', ear: 'ear', chords: 'chords', keys: 'keys', work: 'ear', pick: 'fingerstyle' };
   const warmFor = (stageN, dn) => { const ok = ROTA.filter((r) => stageN >= r.min); return ok[dn % ok.length]; };
   const MEM_TARGET = 5;
   function applyTask(stage, song, an) {
@@ -476,6 +489,7 @@
           </div>
           <div class="stack tight"><div class="row between"><span class="label">The path</span><a class="small" href="#path">See all</a></div>
             ${W.STAGES.map((st) => { const ls = W.LESSONS.filter((l) => l.stage === st.n), d = ls.filter((l) => S.lessons[l.id]).length; return `<div class="stage-row"><b>${st.n}</b><div class="stack tight"><span${st.n === stageN ? ' style="font-weight:700"' : ''}>${esc(st.title)}</span><div class="bar"><i style="width:${(d / ls.length) * 100}%"></i></div></div><span class="mono small muted">${d}/${ls.length}</span></div>`; }).join('')}
+            ${W.TRACKS.map((tr) => { const ls = W.SIDE.filter((l) => l.stage === tr.n), d = ls.filter((l) => S.lessons[l.id]).length, nx = ls.find((l) => !S.lessons[l.id]) || ls[0]; return `<button type="button" class="stage-row side" data-act="openLesson" data-id="${nx.id}"><b>${tr.mark}</b><div class="stack tight"><span>${esc(tr.title)} <span class="tag">Side track</span></span><div class="bar"><i style="width:${(d / ls.length) * 100}%"></i></div></div><span class="mono small muted">${d}/${ls.length}</span></button>`; }).join('')}
           </div>
           ${!setup ? `<div class="stack tight"><div class="row between"><span class="label">Your chords</span><button type="button" class="btn sm quiet" data-act="set" data-path="editChords" data-v="true" data-keep="1">Edit</button></div><div class="legend">${S.known.map((c) => `<strong>${P(c)}</strong>`).join('')}</div></div>` : ''}
         </aside>

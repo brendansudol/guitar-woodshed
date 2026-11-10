@@ -165,7 +165,7 @@
   /* ---------- Player: loops a chord progression with optional band ---------- */
   const PATTERNS = {
     fours: { name: 'Steady fours', p: ['D', 0, 'D', 0, 'D', 0, 'D', 0], say: 'Down on every beat. Count 1, 2, 3, 4.' },
-    eighths: { name: 'Down-up eighths', p: ['D', 'U', 'D', 'U', 'D', 'U', 'D', 'U'], say: 'Down on the number, up on the “and”. The hand is a pendulum.' },
+    eighths: { name: 'Down-up eighths', p: ['D', 'U', 'D', 'U', 'D', 'U', 'D', 'U'], say: 'Down on the number, up on the “and.” The hand is a pendulum.' },
     folk: { name: 'Folk strum', p: ['D', 0, 'D', 'U', 'D', 0, 'D', 'U'], say: '1, 2-and, 3, 4-and.' },
     faithful: { name: 'Old Faithful', p: ['D', 0, 'D', 'U', 0, 'U', 'D', 'U'], say: '1, 2-and, (miss 3) and-4-and. The hand still swings down on 3; it just misses the strings.' },
     push: { name: 'The push', p: ['D', 0, 0, 'U', 0, 'U', 'D', 0], say: '1, (2) and, (3) and-4. Syncopated: the upstrokes land early and pull the song forward.' },
@@ -290,7 +290,7 @@
     pluck(midi, 0, 0.8);
   }
 
-  /* Fundamental frequency of a buffer, or null. Normalised square difference (McLeod), which copes with
+  /* Fundamental frequency of a buffer, or null. Normalized square difference (McLeod), which copes with
      guitar strings whose fundamental is weaker than their overtones. */
   function detectPitch(buf, sr) {
     const n = buf.length;

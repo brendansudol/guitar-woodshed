@@ -148,7 +148,7 @@
     const msg = run.score >= 9 ? 'Solid. Make it harder next round.' : run.score >= 6 ? 'Getting there. Same settings tomorrow.' : 'This is exactly what the drill is for. Short rounds, every day.';
     return `<div class="row" style="gap:28px;align-items:flex-end"><div><div class="stat-n">${run.score}/${run.n}</div><span class="label">this round</span></div>
         <div><div class="stat-n muted">${run.best}/${run.n}</div><span class="label">your best</span></div></div>
-      <p class="note">${msg} Today’s warm-up is ticked off.</p>
+      <p class="note">${msg} Today’s warm-up is checked off.</p>
       <div class="row"><button type="button" class="btn primary" data-act="${act}">Go again</button>${extra}</div>`;
   }
 
@@ -179,7 +179,7 @@
   function notesTab() {
     const st = U.tr.notes, run = st.run;
     const settings = `<div class="row" style="gap:16px 28px;align-items:flex-start">
-        <div class="stack tight"><span class="label">Strings</span><div class="chips">${[0, 1, 2, 3, 4, 5].map((s) => `<button type="button" class="chip${st.strings.includes(s) ? ' on' : ''}" data-act="noteString" data-s="${s}" aria-pressed="${st.strings.includes(s)}">${T.STRING_ORD[s]} · ${T.SHARP[T.TUNING[s] % 12]}</button>`).join('')}</div></div>
+        <div class="stack tight"><span class="label">Strings</span><div class="chips">${[0, 1, 2, 3, 4, 5].map((s) => `<button type="button" class="chip${st.strings.includes(s) ? ' on' : ''}" data-act="noteString" data-s="${s}" aria-pressed="${st.strings.includes(s)}">${T.STRING_NAMES[s].replace(/^./, (c) => c.toUpperCase())}</button>`).join('')}</div></div>
         <div class="stack tight"><span class="label">Drill</span>${chips([{ v: 'find', l: 'Find the note' }, { v: 'name', l: 'Name the note' }], st.mode, 'set', 'data-path="tr.notes.mode"')}</div>
         <div class="stack tight"><span class="label">Notes</span>${chips([{ v: true, l: 'Plain letters' }, { v: false, l: 'Sharps too' }], st.nat, 'set', 'data-path="tr.notes.nat"')}</div>
       </div>`;
@@ -191,7 +191,7 @@
         <div class="row"><button type="button" class="btn primary big" data-act="noteStart">Start 10 notes</button></div>
         <section class="stack"><h2>Your neck so far</h2>
           ${any ? `${R.fretboard({ id: 'heat', frets: 12, marks: heat })}<div class="legend"><span class="pair"><span class="deg d4">&nbsp;</span> solid</span><span class="pair"><span class="deg d3">&nbsp;</span> shaky</span><span class="pair"><span class="deg d1">&nbsp;</span> keep drilling</span></div>`
-            : `${R.fretboard({ id: 'heat', frets: 12, marks: {} })}<p class="note">Empty for now. Every note you’re asked about gets a dot here: green when you know it, red when you don’t. Start with strings 6 and 5 and add a string once those are green.</p>`}
+            : `${R.fretboard({ id: 'heat', frets: 12, marks: {} })}<p class="note">Empty for now. Every note you’re asked about gets a dot here: green when you know it, red when you don’t. Start with the low E and A strings and add a string once those are green.</p>`}
         </section>`;
     }
     if (run.done) return roundDone(run, 'noteStart', '<button type="button" class="btn quiet" data-act="noteQuit">Change settings</button>');
@@ -311,7 +311,7 @@
     const tab = U.tr.tab;
     const TR = W.TRAIN, tabs = TR.order.map((k) => [k, TR.labels[k]]);
     const body = (TR.fns[tab] || TR.fns.notes)();
-    return `<div class="head"><span class="eyebrow">Trainers</span><h1>Three minutes, every day</h1></div>
+    return `<div class="head"><span class="eyebrow">Trainers</span><h1>A few minutes, every day</h1></div>
       <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="tab${k === tab ? ' on' : ''}" data-act="trTab" data-v="${k}">${l}</button>`).join('')}</div>
       <div class="stack" style="gap:20px">${body}</div>`;
   };

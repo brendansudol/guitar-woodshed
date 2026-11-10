@@ -163,7 +163,7 @@
       W.FB.work = (s, f) => { if (f > 12) return; A.playNote(s, f); run.pick = { s, f }; run.homeMsg = ''; W.render(); };
       const name = run.pick ? T.noteName(T.TUNING[run.pick.s] + run.pick.f, false) : '';
       return `${head}<div class="bigq">Which note is home?</div>
-        <div class="row">${R.playBtn(loopId, 'Play the loop', 'primary')}${run.pick ? `<button type="button" class="btn" data-act="workHome">${esc(name)} is home</button>` : ''}</div>
+        <div class="row">${R.playBtn(loopId, 'Hear the loop', 'primary')}${run.pick ? `<button type="button" class="btn" data-act="workHome">${esc(name)} is home</button>` : ''}</div>
         <div class="barrow" data-prog="work">${run.prog.map((_, i) => `<div class="barbox" data-ci="${i}"><small>Bar ${i + 1}</small><b>?</b></div>`).join('')}</div>
         ${R.fretboard({ id: 'work', frets: 12, marks, strings: [0, 1] })}
         <p class="note">${run.homeMsg || 'Let the loop run and tap notes on the two thick strings. Most will sound like they want to move. Home is the one that sounds finished, as if the song could end on it.'}</p>
@@ -183,14 +183,14 @@
         <div class="bigq">Key of ${esc(T.keyName(run.key))}. Worked out.</div>
         ${bars(true)}
         <p class="note">${match ? `<strong>${esc(match.name)}</strong> (${esc(match.nums)}). ` : ''}Pick up your guitar and play it along with the loop. You just did by ear what a chord chart would have told you.</p>
-        <div class="row">${R.playBtn(loopId, 'Play the loop')}<button type="button" class="btn primary" data-act="workStart">Next loop</button><button type="button" class="btn quiet" data-act="workQuit">Change level</button></div>
+        <div class="row">${R.playBtn(loopId, 'Hear the loop')}<button type="button" class="btn primary" data-act="workStart">Next loop</button><button type="button" class="btn quiet" data-act="workQuit">Change level</button></div>
         <p class="note">Loops worked out so far: <strong>${solved}</strong>.</p>`;
     }
 
     const filled = run.guesses.every((g) => g != null);
     const allRight = run.results && run.results.every(Boolean);
     return `${head}<div class="bigq">Key of ${esc(T.keyName(run.key))}. Name the chords.</div>
-      <div class="row">${R.playBtn(loopId, 'Play the loop', 'primary')}<button type="button" class="btn" data-act="workHear"><span class="btn-ico" aria-hidden="true"></span>Hear bar ${run.bar + 1} alone</button></div>
+      <div class="row">${R.playBtn(loopId, 'Hear the loop', 'primary')}<button type="button" class="btn" data-act="workHear"><span class="btn-ico" aria-hidden="true"></span>Hear bar ${run.bar + 1} alone</button></div>
       ${bars(false)}
       <div class="stack tight"><span class="label">Bar ${run.bar + 1} is…</span>
         <div class="quiz-opts">${pool.map((ix) => `<button type="button" class="opt" data-act="workGuess" data-g="${ix}" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:74px"><span style="font-family:var(--font-display);font-weight:800;font-size:24px;line-height:1">${esc(run.fam[ix].chord.name)}</span>${R.degTag(run.fam[ix].numeral, ix + 1)}</button>`).join('')}</div></div>
@@ -210,7 +210,7 @@
     if (!list.includes(st.ch)) st.ch = list[0];
     const ch = T.parseChord(st.ch), v = T.voicing(ch);
     return `<section class="stack"><h2>Chord check</h2>
-        <p class="note">A chord is only as good as its worst string. Hold the shape, then play each string on its own along with the app. A dead or buzzing string usually means a neighbouring finger is leaning on it, or your fingertip isn’t close enough to the fret.</p>
+        <p class="note">A chord is only as good as its worst string. Hold the shape, then play each string on its own along with the app. A dead or buzzing string usually means a neighboring finger is leaning on it, or your fingertip isn’t close enough to the fret.</p>
         ${chips(list, st.ch, 'set', 'data-path="tr.chords.ch"')}
         <div class="row" style="gap:28px;align-items:flex-start">
           <div style="width:170px;max-width:100%">${R.chordBox(ch, { tones: true, labels: 'ivl' }).replace('class="cbox"', 'class="cbox" style="width:100%"')}</div>

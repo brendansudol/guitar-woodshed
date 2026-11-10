@@ -1,0 +1,10 @@
+{
+  "name": "guitar-woodshed",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A structured, interactive guitar course that teaches the system underneath the songs.",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "build": "node scripts/build.js"
+  }
+}

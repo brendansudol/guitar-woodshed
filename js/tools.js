@@ -11,7 +11,7 @@
     { v: 'minPent', l: 'Minor pentatonic', use: 'Five notes, no clashes. The default for riffs and solos in rock and blues.' },
     { v: 'majPent', l: 'Major pentatonic', use: 'The sweet, country-sounding five. Same shapes as the minor pentatonic three frets down.' },
     { v: 'blues', l: 'Blues scale', use: 'Minor pentatonic plus one gritty passing note, the b5. Don’t rest on it.' },
-    { v: 'chMaj', l: 'Major chord', iv: [0, 4, 7], use: 'Every place the three chord notes live. Any group of neighbours is a playable voicing.' },
+    { v: 'chMaj', l: 'Major chord', iv: [0, 4, 7], use: 'Every place the three chord notes live. Any group of neighbors is a playable voicing.' },
     { v: 'chMin', l: 'Minor chord', iv: [0, 3, 7], use: 'Same as the major chord with the 3 dropped one fret.' },
     { v: 'ch7', l: '7 chord', iv: [0, 4, 7, 10], use: 'A major chord plus the b7. It’s the sound of the V chord wanting to go home.' },
     { v: 'one', l: 'One note', iv: [0], use: 'Every copy of a single note. Look for the octave shapes between them.' },
@@ -37,7 +37,7 @@
       </div>
       ${R.fretboard({ id: 'neck', marks })}
       <div class="legend">${steps.length <= 7 ? steps.map((iv) => `<span class="pair">${R.degTag(T.IVL[iv], T.DEG_OF[iv])} ${P(T.noteName(n.root + iv, flats))}</span>`).join('') : ''}</div>
-      <p class="note">Tap anywhere on the neck to hear the note. Colours follow the number: red is always the 1, the home note. Low E string is at the bottom, as in tab.</p>`;
+      <p class="note">Tap anywhere on the neck to hear the note. Colors follow the number: red is always the 1, the home note. Low E string is at the bottom, as in tab.</p>`;
   };
 
   /* ---------- Keys ---------- */
@@ -86,7 +86,7 @@
         <p class="note">${fresh.length ? `<strong>New to you:</strong> ${fresh.map((c) => P(c.name)).join(', ')} (dashed).` : 'You already play every chord in this.'}</p>
       </div>
       <div class="row"><span class="label">How well do you know it?</span>${chips([{ v: 'learn', l: 'Learning' }, { v: 'play', l: 'Can play through' }, { v: 'mem', l: 'From memory' }], song.status || 'learn', 'songStatus', `data-id="${song.id}"`)}</div>
-      <div class="row">${R.playBtn(id, 'Play', 'sm')}
+      <div class="row">${R.playBtn(id, 'Play along', 'sm')}
         <button type="button" class="btn sm" data-act="jamSong" data-id="${song.id}">Jam on it</button>
         <button type="button" class="btn sm" data-act="pickSong" data-id="${song.id}">Fingerpick it</button>
         <span class="row" style="gap:4px"><button type="button" class="btn sm quiet" data-act="songTr" data-id="${song.id}" data-d="-1" aria-label="Down one key">−</button>
@@ -112,7 +112,7 @@
         <textarea id="song-text" placeholder="Verse: G D Em C&#10;Chorus: C G D D" spellcheck="false">${esc(song.text)}</textarea></label>
       <p class="note">One line per section, chords separated by spaces, in the order you play them. Start a line with a name and a colon to label it. Repeats aren’t needed; the loop is what matters.</p>
       ${U.songs.err ? `<p class="small" style="color:var(--bad);font-weight:600">${esc(U.songs.err)}</p>` : ''}
-      <div class="row"><button type="button" class="btn primary" data-act="songSave">Decode it</button><button type="button" class="btn quiet" data-act="songCancel">Cancel</button></div>
+      <div class="row"><button type="button" class="btn primary" data-act="songSave">Save song</button><button type="button" class="btn quiet" data-act="songCancel">Cancel</button></div>
     </form>`;
   }
 
@@ -127,9 +127,9 @@
     const hasEx = S.songs.some((s) => s.example);
     const mem = S.songs.filter((s) => s.status === 'mem').length, MEM = 5;
     return `<div class="head"><span class="eyebrow">Songbook · ${S.songs.length} song${S.songs.length === 1 ? '' : 's'}</span><h1>Your songs, decoded</h1>
-        <p class="lede">Type in the chords of a song you play. The app finds the key, turns every chord into its ${W.term('numeral', 'number')}, names the pattern, and shows what it shares with the rest of your songs.</p></div>
+        <p class="lede">Type in the chords of a song you play. The app finds the key, turns every chord into its ${W.term('numeral', 'number')}, names the loop, and shows what it shares with the rest of your songs.</p></div>
       <div class="goal${mem >= MEM ? ' met' : ''}"><span class="label">${mem >= MEM ? 'Target reached' : 'Standing target'}</span>
-        <p>Five songs you can play start to finish from memory. That is a set you can pull out anywhere, and every stage of the course gets practised on them.</p>
+        <p>Five songs you can play start to finish from memory. That is a set you can pull out anywhere, and every stage of the course gets practiced on them.</p>
         <div class="row"><div class="bar"><i style="width:${Math.min(100, (mem / MEM) * 100)}%"></i></div><span class="mono small">${Math.min(mem, MEM)} of ${MEM} songs</span></div></div>
       ${U.songs.edit ? songForm() : `<div class="row"><button type="button" class="btn primary" data-act="songNew">Add a song</button>
         ${hasEx ? '<button type="button" class="btn quiet" data-act="songClearEx">Remove the examples</button>' : ''}</div>`}

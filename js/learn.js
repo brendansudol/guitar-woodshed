@@ -29,7 +29,7 @@
       const sid = `${scope}-${p.id}`;
       const id = W.reg(sid, () => Object.assign({ chords, bpm: blues ? 104 : 100, pattern: blues ? 'eighths' : 'folk', swing: blues ? 0.33 : 0, bass: true, drums: true, vel: 0.7 }, W.hl(sid)));
       return `<div class="stack tight" style="padding:14px 0;border-top:1px solid var(--line)">
-        <div class="row between"><div class="stack tight"><h3>${esc(p.name)}</h3><span class="mono small muted">${esc(p.nums)}</span></div>${R.playBtn(id, 'Play', 'sm')}</div>
+        <div class="row between"><div class="stack tight"><h3>${esc(p.name)}</h3><span class="mono small muted">${esc(p.nums)}</span></div>${R.playBtn(id, 'Play along', 'sm')}</div>
         ${W.progStrip(sid, chords, key, { mini: true, markNew: true })}
         <p class="note">${esc(p.note)}</p>
       </div>`;
@@ -112,7 +112,7 @@
         for (let s = 0; s < 6; s++) for (let f = 0; f <= 15; f++) if ((T.TUNING[s] + f) % 12 === st.note) marks[s + ':' + f] = { t: T.SHARP[st.note], d: 1 };
         return `${chips(T.SHARP.map((n, i) => ({ v: i, l: n })), st.note, 'set', `data-path="${path}note"`)}
           ${R.fretboard({ id: 'w', marks })}
-          <p class="note">Every ${P(T.SHARP[st.note])} on the neck. Trace the octave shapes between neighbouring dots.</p>`;
+          <p class="note">Every ${P(T.SHARP[st.note])} on the neck. Trace the octave shapes between neighboring dots.</p>`;
       }
       case 'scale': {
         def('root', 7); def('one', true); def('label', 'degree');
@@ -165,7 +165,7 @@
             <div class="row">${chords.map((c) => R.degTag(T.numeral(c, st.key), T.degreeOf(c.root, st.key))).join('<span class="muted">–</span>')}</div></div>
           <div class="stack tight"><span class="label">Pick a key and the letters move</span>${keyChips(path + 'key', st.key)}</div>
           ${W.progStrip('w-tr', chords, st.key, { markNew: true, box: true })}
-          <div class="row">${R.playBtn(id, 'Play the loop')}</div>`;
+          <div class="row">${R.playBtn(id, 'Play along')}</div>`;
       }
       case 'progressions': {
         def('key', 7);
@@ -255,9 +255,9 @@
             <label class="field" style="flex:2;min-width:200px"><span class="label">Its chords, in order</span><input type="text" id="dec-text" value="${esc(st.text)}" placeholder="G D Em C" data-change="decodeText" autocomplete="off" spellcheck="false"></label>
             <button type="button" class="btn primary" data-act="decodeGo">Decode it</button></div>
           <div class="stack">
-            <div class="row">${typed.length ? '' : '<span class="tag">Example</span>'}<span class="deg d1" style="font-size:18px;padding:3px 9px 1px">Key of ${T.keyName(key)}</span>${R.playBtn(id, 'Hear it', 'sm')}</div>
+            <div class="row">${typed.length ? '' : '<span class="tag">Example</span>'}<span class="deg d1" style="font-size:18px;padding:3px 9px 1px">Key of ${T.keyName(key)}</span>${R.playBtn(id, 'Play along', 'sm')}</div>
             ${W.progStrip('w-dec', chords, key, {})}
-            <p class="note">${match ? `<strong>${esc(match.name)}</strong> (${esc(match.nums)}). ` : ''}The coloured tag under each chord is its number in this key. Red is I, the home chord.</p>
+            <p class="note">${match ? `<strong>${esc(match.name)}</strong> (${esc(match.nums)}). ` : ''}The colored tag under each chord is its number in this key. Red is I, the home chord.</p>
             ${typed.length ? `<div class="row">${st.saved ? '<strong>Saved to your Songbook.</strong>' : inBook ? '' : '<button type="button" class="btn sm" data-act="decodeSave">Save to my Songbook</button>'}</div>` : ''}
           </div>
           <div class="stack tight"><span class="label">Now compare: the numbers in other songs</span>${rows || '<p class="note">Your Songbook is empty. Decode a second song to compare.</p>'}</div>`;
@@ -373,7 +373,7 @@
               <span class="tick"></span><span>${esc(l.title)}${nx && nx.id === l.id && tag ? ` <span class="tag">${tag}</span>` : ''}</span><span class="mins">${l.mins} min</span></button>`).join('')}</div>`;
     return `<div class="head"><span class="eyebrow">The path · 7 stages · ${W.LESSONS.length} lessons · ${W.TRACKS.length} side track</span>
         <h1>Each stage is built on the last</h1>
-        <p class="lede">Song tutorials teach you where to put your fingers. This teaches why they go there, in the order that makes every new thing attach to something you already know. Skip ahead if a stage is old news; come back when something later doesn’t click. Reading a stage takes minutes and the skill takes longer, so each stage ends with a target to reach before you move on.</p></div>
+        <p class="lede">This course teaches why your fingers go where they go, in an order where each new idea attaches to one you already know. Skip ahead if a stage is old news; come back when something later doesn’t click. Reading a stage takes minutes and the skill takes longer, so each stage ends with a target to reach before you move on.</p></div>
       <div>${W.STAGES.map((st) => {
         const ls = W.LESSONS.filter((l) => l.stage === st.n);
         const allDone = ls.every((l) => S.lessons[l.id]);
@@ -405,7 +405,7 @@
     { min: 0, tab: 'chords', title: 'One-minute changes', text: 'Sixty seconds on your slowest chord pair. Count the clean changes and beat your best.' },
     { min: 0, tab: 'ear', mode: 'interval', title: 'Find the second note', text: 'You hear two notes and see the first. Find the second by ear.' },
     { min: 2, tab: 'ear', mode: 'chord', title: 'Name the chord', text: 'Ten mystery chords. Feel each one against home before you answer.' },
-    { min: 3, tab: 'keys', title: 'Key Chords', text: 'Ten quick questions like “what’s the IV in A?”. Go for speed, not certainty.' },
+    { min: 3, tab: 'keys', title: 'Key Chords', text: 'Ten quick questions like “what’s the IV in A?” Go for speed, not certainty.' },
     { min: 3, tab: 'work', title: 'Work It Out', text: 'One loop, no chart. Find home on the thick strings, then name the chords.' },
     { min: 2, tab: 'pick', title: 'Pick Lab', text: 'One picking pattern over two chords, slower than feels necessary. Thumb on the root, one finger per thin string.' },
   ];
@@ -464,15 +464,15 @@
 
     return `<div class="head"><span class="eyebrow">${esc(date)} · ${stageN ? `Stage ${stageN} of 7 · ` : ''}${esc(stage.title)}</span>
         <h1>Today’s twenty minutes</h1>
-        <p class="lede">${S.onboarded ? esc(stage.why) : 'You can already play songs. This course teaches the system underneath them, so the next song takes an afternoon and a jam with friends stops being scary. Four short blocks a day, with the biggest one spent on real songs.'}</p></div>
+        <p class="lede">${S.onboarded ? esc(stage.why) : 'You can already play a few songs. Underneath them is a small system: keys, chord numbers, rhythm and ear. Learn it and you can pick up a new song quickly and hold your own when friends are playing.'}</p></div>
       ${setup ? setupPanel : ''}
       <div class="row" style="gap:10px 14px"><a class="btn sm" href="#tune">Tune up first</a>${S.guideSeen ? '' : '<a class="btn sm" href="#guide">How to read this app</a>'}
-        <span class="note">${S.guideSeen ? 'Thirty seconds. Everything sounds wrong on an out-of-tune guitar.' : 'New here? Tune up, then take one minute to learn how to read the diagrams.'}</span></div>
+        <span class="note">${S.guideSeen ? 'Thirty seconds. Everything sounds wrong on an out-of-tune guitar.' : 'New here? Tune up, then take two minutes to learn how to read the diagrams.'}</span></div>
       <div class="cols">
         <div class="session">
           ${block('w', 3, 'warm up · ' + AREA[warm.tab], esc(warm.title), esc(warm.text) + ' A different area comes up each day.', `<button type="button" class="btn sm" data-act="go" data-hash="train" data-tab="${warm.tab}"${warm.mode ? ` data-mode="${warm.mode}"` : ''}>Start</button>`)}
           ${hold
-            ? block('l', 5, 'practise', `Stay on stage ${hold.n} until it sticks`, `${esc(hold.text)} You’re at ${hold.have} of ${hold.need} ${hold.unit}. Reading the lessons was the quick part.`, W.goBtn(hold.go, 'sm primary') + (nl ? `<button type="button" class="btn sm quiet" data-act="openLesson" data-id="${nl.id}">Next lesson anyway</button>` : ''))
+            ? block('l', 5, 'practice', `Stay on stage ${hold.n} until it sticks`, `${esc(hold.text)} You’re at ${hold.have} of ${hold.need} ${hold.unit}. Reading the lessons was the quick part.`, W.goBtn(hold.go, 'sm primary') + (nl ? `<button type="button" class="btn sm quiet" data-act="openLesson" data-id="${nl.id}">Next lesson anyway</button>` : ''))
             : block('l', 5, 'learn', nl ? esc(nl.title) : 'Revisit any lesson', nl ? (nl.stage ? `Stage ${nl.stage}, the next step on the path. Read, try the demo, do the check.` : 'The first step: five minutes with one of your own songs.') : 'You’ve finished the path. Pick the lesson that still feels shaky.', nl ? `<button type="button" class="btn sm primary" data-act="openLesson" data-id="${nl.id}">Open lesson</button>` : `<button type="button" class="btn sm" data-act="go" data-hash="path">Open path</button>`)}
           ${block('a', 8, 'songs', app[0], app[1] + (song ? ` Then play it start to finish without stopping, and once without looking at the chords. <strong>${mem} of ${MEM_TARGET}</strong> songs from memory so far.` : ''), `<button type="button" class="btn sm" data-act="go" data-hash="songs">Songbook</button>`)}
           ${block('j', 4, 'play', `Jam in ${P(T.keyName(jamKey))}`, 'Backing band on, no goal. Strum along, then try a few notes from the box. This is the part that makes it music.', `<button type="button" class="btn sm" data-act="jamIn" data-key="${jamKey}">Jam Room</button>`)}

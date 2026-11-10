@@ -6,7 +6,7 @@
     { n: 0, title: 'Start here', why: 'One short lesson using your own songs, so you can see what the rest of the course is building toward.' },
     { n: 1, title: 'The map', why: 'You can’t navigate what you can’t name. Chord roots, barre chords and every scale hang off the notes on the two thickest strings.' },
     { n: 2, title: 'Where chords come from', why: 'Chords aren’t arbitrary finger shapes. Each one is three notes pulled out of a scale. Once you see that, new chords stop being things to memorize.' },
-    { n: 3, title: 'Songs are numbers', why: 'The unlock for learning songs fast. Musicians don’t remember “G, D, Em, C”. They remember “1, 5, 6, 4” and can play it in any key.' },
+    { n: 3, title: 'Songs are numbers', why: 'The unlock for learning songs fast. Musicians don’t remember “G, D, Em, C.” They remember “one, five, six, four” and can play it in any key.' },
     { n: 4, title: 'Rhythm', why: 'In a jam nobody notices a slightly wrong chord. Everybody notices lost time. The strumming hand is the instrument.' },
     { n: 5, title: 'Ears', why: 'Picking up songs quickly is mostly an ear skill: hearing where home is and how far each chord sits from it.' },
     { n: 6, title: 'Riffing', why: 'Improvising isn’t inventing from nothing. It’s five safe notes, a sense of rhythm, and knowing which note to land on.' },
@@ -19,13 +19,13 @@
       id: '0-1', stage: 0, mins: 5, title: 'Your songs already share a system',
       body: `<p>Right now you know each song as its own list of chord shapes. Before any theory, look at them another way.</p>
 <p>Type the chords of a song you play into the box below. The app works out the key and puts a <strong>number</strong> under every chord. (The numbers are written as roman numerals: capitals for major chords, lower-case for minor.) Don’t worry yet about where they come from. Just look at which ones show up.</p>
-<p>Then compare with the songs underneath. Different letters, different order, but the same few numbers: mostly <strong>I, IV, V and vi</strong>. Those numbers are what your songs have in common. Learning to see, hear and use them is what turns five memorized songs into fifty.</p>
+<p>Then compare with the songs underneath. Different letters, different order, but the same few numbers: mostly <strong>I, IV, V and vi</strong>. Those numbers are what your songs have in common. Once you can see, hear and use them, each new song is mostly things you already know.</p>
 <p>Stages 1 and 2 explain where the numbers come from. Stage 3 puts them to work. If a word has a dotted underline, tap it for a plain definition.</p>`,
       w: { type: 'decode' },
       practice: ['Play your song while reading the numbers under the chords, not the letters.', 'Decode a second song. Find one number the two songs share.', 'Save both to your Songbook. You will come back to them in every stage.'],
       tool: { label: 'How to read this app', hash: 'guide' },
       quiz: [
-        { q: 'Two songs use different chord letters but the same numbers. What does that tell you?', a: ['One of them is written down wrong', 'They are the same pattern in different keys', 'They must be played at the same speed'], c: 1 },
+        { q: 'Two songs use different chord letters but the same numbers. What does that tell you?', a: ['One of them is written down wrong', 'They are the same chord loop in different keys', 'They must be played at the same speed'], c: 1 },
         { q: 'Which numbers turn up most in popular songs?', a: ['I, IV, V and vi', 'ii, iii and vii', 'Only the I'], c: 0 },
       ],
     },
@@ -51,7 +51,7 @@
 <p>Your G chord: the lowest note is fret 3 of the low E string, which is G. Your C chord: fret 3 of the A string, which is C. The chord is named after that bass note, the <strong>root</strong>.</p>
 <p>Start with the landmarks under the fret dots, frets 3, 5 and 7. Low E string: <strong>G, A, B</strong>. A string: <strong>C, D, E</strong>. Six notes. Everything else is one fret from a landmark.</p>`,
       w: { type: 'string', strings: [0, 1] },
-      practice: ['Play the six landmarks (frets 3, 5, 7 on both strings) saying the names. Twice forwards, twice backwards.', 'Take each chord you know and find its root note on the low E or A string.', 'Run one Note Finder round on strings 6 and 5 every day this week. It takes three minutes and it compounds.'],
+      practice: ['Play the six landmarks (frets 3, 5, 7 on both strings) saying the names. Twice forwards, twice backwards.', 'Take each chord you know and find its root note on the low E or A string.', 'Run one Note Finder round on the low E and A strings every day this week. It takes three minutes.'],
       tool: { label: 'Open Note Finder', hash: 'train' },
       quiz: [
         { q: 'What note is at fret 5 on the A string?', a: ['C', 'E', 'D', 'B'], c: 2 },
@@ -63,7 +63,7 @@
       id: '1-3', stage: 1, mins: 6, title: 'Octave shapes',
       body: `<p>Once you can name a note on the E or A string, two shapes find it everywhere else.</p>
 <p><strong>Shape one:</strong> from the low E or A string, go two strings thinner and two frets higher. Same note, one octave up.</p>
-<p><strong>Shape two:</strong> from the D or G string, go two strings thinner and <em>three</em> frets higher. The B string is tuned a fret “short”, so any shape that crosses it shifts up by one.</p>
+<p><strong>Shape two:</strong> from the D or G string, go two strings thinner and <em>three</em> frets higher. The B string is tuned a fret “short,” so any shape that crosses it shifts up by one.</p>
 <p>And the high E string has exactly the same note names as the low E. So learning two strings gives you all six.</p>`,
       w: { type: 'octaves' },
       practice: ['Pick a note. Find it on the low E string, then use the shapes to hop to the D string, then the B string.', 'Same again starting from the A string: A string, G string, high E string.'],
@@ -76,14 +76,14 @@
     /* ---------------- Stage 2 ---------------- */
     {
       id: '2-1', stage: 2, mins: 7, title: 'The major scale: one formula',
-      body: `<p>Nearly everything in music is described relative to the major scale, the “do re mi” sound. It is seven of the twelve notes, chosen by a fixed pattern of steps:</p>
+      body: `<p>Nearly everything in music is described relative to the major scale, the “do re mi” sound. It is seven of the twelve notes, chosen by a fixed formula of steps:</p>
 <p class="mono-line">whole · whole · half · whole · whole · whole · half</p>
-<p>Start on any note, apply the pattern, and you have that note’s major scale. From G: G A B C D E F#.</p>
-<p>We number the notes <strong>1 to 7</strong>. These numbers are called scale degrees, and they are the most useful idea in this course. Chords, keys and solos are all described with them. Each number keeps the same colour everywhere in this app.</p>`,
+<p>Start on any note, apply the formula, and you have that note’s major scale. From G: G A B C D E F#.</p>
+<p>We number the notes <strong>1 to 7</strong>. These numbers are called scale degrees, and they are the most useful idea in this course. Chords, keys and solos are all described with them. Each number keeps the same color everywhere in this app.</p>`,
       w: { type: 'scale' },
       practice: ['Play G major along the low E string only, from fret 3: frets 3, 5, 7, 8, 10, 12, 14, 15. Say the numbers 1 to 7 as you go.', 'Do the same from A at fret 5. Same spacing, different starting point. That’s all a key change is.'],
       quiz: [
-        { q: 'The major scale step pattern is…', a: ['W W H W W W H', 'W H W W H W W', 'W W W H W W H'], c: 0 },
+        { q: 'The major scale formula is…', a: ['W W H W W W H', 'W H W W H W W', 'W W W H W W H'], c: 0 },
         { q: 'In G major, which note is number 5?', a: ['C', 'E', 'D', 'B'], c: 2 },
       ],
     },
@@ -107,7 +107,7 @@
 <p class="mono-line">I · ii · iii · IV · V · vi · vii°</p>
 <p>In G that is G, Am, Bm, C, D, Em, F#°. If you play G, C, D and Em, you have been playing in the key of G all along. <strong>I, IV and V</strong> are the three majors. <strong>vi</strong> is the minor that turns up most. Those four cover a huge share of popular music.</p>`,
       w: { type: 'family' },
-      practice: ['In G, play I–IV–V–I: G, C, D, G. Then in C: C, F, G, C. Same movement at a different height.', 'Say the G family out loud while you play it: G, A minor, B minor, C, D, E minor.'],
+      practice: ['In G, play I – IV – V – I: G, C, D, G. Then in C: C, F, G, C. Same movement at a different height.', 'Say the G family out loud while you play it: G, A minor, B minor, C, D, E minor.'],
       quiz: [
         { q: 'In every major key, which numbers are minor chords?', a: ['ii, iii and vi', 'ii, IV and vi', 'iii, V and vii'], c: 0 },
         { q: 'What is the IV chord in the key of G?', a: ['D', 'Em', 'C', 'Am'], c: 2 },
@@ -118,33 +118,33 @@
     /* ---------------- Stage 3 ---------------- */
     {
       id: '3-1', stage: 3, mins: 7, title: 'The number system',
-      body: `<p>G–D–Em–C in the key of G is <strong>I–V–vi–IV</strong>. C–G–Am–F in the key of C is also I–V–vi–IV. Same song, different key.</p>
-<p>When you know a song as numbers, you know it in all twelve keys. You can move it for a singer in seconds. And you start to hear that most songs are a small set of moves, rearranged. That is the difference between memorizing songs and understanding them.</p>
-<p>When a friend says “it’s a one-four-five in A”, that is a complete instruction: A, D, E.</p>`,
+      body: `<p>G – D – Em – C in the key of G is <strong>I – V – vi – IV</strong>. C – G – Am – F in the key of C is also I – V – vi – IV. Same song, different key.</p>
+<p>When you know a song as numbers, you know it in all twelve keys. You can move it for a singer in seconds. And you start to hear that most songs are a small set of moves, rearranged.</p>
+<p>When a friend says “it’s a one-four-five in A,” that is a complete instruction: A, D, E.</p>`,
       w: { type: 'transposer', prog: 'axis' },
-      practice: ['Play I–V–vi–IV in G, four strums per chord. Then in C. Then in D if you have a Bm.', 'While you play, say the numbers out loud, not the chord names.'],
+      practice: ['Play I – V – vi – IV in G, four strums per chord. Then in C. Then in D if you have a Bm.', 'While you play, say the numbers out loud, not the chord names.'],
       quiz: [
-        { q: 'I–V–vi–IV in the key of C is…', a: ['C, F, Am, G', 'C, G, Am, F', 'C, G, Em, F'], c: 1 },
-        { q: 'A friend calls “one-four-five in A”. Which chords?', a: ['A, D, E', 'A, C, D', 'A, E, F#m'], c: 0 },
-        { q: 'D–A–Bm–G in the key of D is…', a: ['I–IV–vi–V', 'I–vi–IV–V', 'I–V–vi–IV'], c: 2 },
+        { q: 'I – V – vi – IV in the key of C is…', a: ['C, F, Am, G', 'C, G, Am, F', 'C, G, Em, F'], c: 1 },
+        { q: 'A friend calls “one-four-five in A.” Which chords?', a: ['A, D, E', 'A, C, D', 'A, E, F#m'], c: 0 },
+        { q: 'D – A – Bm – G in the key of D is…', a: ['I – IV – vi – V', 'I – vi – IV – V', 'I – V – vi – IV'], c: 2 },
       ],
     },
     {
       id: '3-2', stage: 3, mins: 8, title: 'Six loops behind most songs',
       body: `<p>A handful of chord loops account for most of the songs you will want to play. Learn each one by sound and by number.</p>
-<p>From here on, your first question about any new song is: <strong>which of these is it, and what’s different?</strong> Usually the answer is “one of these, with one surprise”. You only have to learn the surprise.</p>`,
+<p>From here on, your first question about any new song is: <strong>which of these is it, and what’s different?</strong> Usually the answer is “one of these, with one surprise.” You only have to learn the surprise.</p>`,
       w: { type: 'progressions' },
-      practice: ['Play each loop in G for a minute. Notice which songs come to mind.', 'Take your favourite and play it in a second key.'],
+      practice: ['Play each loop in G for a minute. Notice which songs come to mind.', 'Take your favorite and play it in a second key.'],
       quiz: [
         { q: 'A 12-bar blues is built from which chords?', a: ['I, ii and V', 'I, IV and V', 'I, vi and IV'], c: 1 },
-        { q: 'vi–IV–I–V uses the same four chords as…', a: ['I–V–vi–IV', 'ii–V–I', 'I–iii–IV–V'], c: 0 },
+        { q: 'vi – IV – I – V uses the same four chords as…', a: ['I – V – vi – IV', 'ii – V – I', 'I – iii – IV – V'], c: 0 },
       ],
     },
     {
       id: '3-3', stage: 3, mins: 10, title: 'Decode your own songs',
       body: `<p>Time to turn the songs you’ve memorized into knowledge. Put each one in the Songbook. It works out the key and rewrites every chord as a number.</p>
-<p>Look for three things. <strong>Which songs share a pattern.</strong> <strong>Which numbers you use constantly</strong> (probably I, IV, V and vi). And <strong>any chord from outside the key</strong>: those are the memorable moments in a song, and you will start to recognize them too.</p>
-<p>From now on every new song goes in as numbers first. That is how five songs become fifty.</p>`,
+<p>Look for three things. <strong>Which songs share a loop.</strong> <strong>Which numbers you use constantly</strong> (probably I, IV, V and vi). And <strong>any chord from outside the key</strong>: those are the memorable moments in a song, and you will start to recognize them too.</p>
+<p>From now on every new song goes in as numbers first.</p>`,
       w: { type: 'link', label: 'Open the Songbook', hash: 'songs' },
       practice: ['Add every song you can play to the Songbook.', 'Play each one while reading the numbers instead of the chord names.', 'Find two of your songs that share at least three numbers.'],
       quiz: [
@@ -154,7 +154,7 @@
     {
       id: '3-4', stage: 3, mins: 6, title: 'Capo and changing key',
       body: `<p>A capo raises every open string by one fret per position. Your shapes stay the same and the key moves up. Play G shapes with a capo on fret 2 and you are in A.</p>
-<p>This is why tutorials say “capo 3, play Em, C, G, D”. The numbers haven’t changed. The capo has moved them.</p>
+<p>This is why tutorials say “capo 3, play Em, C, G, D.” The numbers haven’t changed. The capo has moved them.</p>
 <p>To move a song for a singer: read its numbers, pick the new key, read the new chords off that key’s family. Or keep your shapes and let the capo do it.</p>`,
       w: { type: 'capo' },
       practice: ['Take a song you play in G. Play it in A two ways: with the A family (A, D, E, F#m), then with a capo on 2 using your G shapes.', 'Notice the numbers never changed.'],
@@ -167,8 +167,8 @@
     /* ---------------- Stage 4 ---------------- */
     {
       id: '4-1', stage: 4, mins: 7, title: 'The pendulum hand',
-      body: `<p>Count a bar as <strong>“1 & 2 & 3 & 4 &”</strong>. Your strumming hand moves down on every number and up on every “&”, constantly, whether or not it touches the strings.</p>
-<p>Every strumming pattern is that same motion with some strokes missing the strings on purpose. Videos teach patterns as strings of Ds and Us to memorize, which is why they don’t stick. There is one motion, and a choice of which strokes connect.</p>
+      body: `<p>Count a bar as <strong>“1 & 2 & 3 & 4 &”</strong>. Your strumming hand keeps moving, down on every number and up on every “&” whether or not it touches the strings.</p>
+<p>Every strumming pattern is that same motion with some strokes missing the strings on purpose. So there is no string of Ds and Us to memorize. There is one motion, and a choice of which strokes connect.</p>
 <p>Keep the hand swinging and the time takes care of itself.</p>`,
       w: { type: 'strum', patterns: ['eighths', 'fours'] },
       practice: ['Mute the strings with your fretting hand. Strum down-up along with the player at 70, counting out loud, for two minutes.', 'Still muted: keep the hand moving but only hit the strings on the numbers. Then only on the “&”s.'],
@@ -208,7 +208,7 @@
 <p>The <strong>I is home</strong>. Songs end there and feel finished. The <strong>IV is away</strong>: open, like stepping outside. The <strong>V is tension</strong>: it leans back toward home and wants to resolve. The <strong>vi is home’s shadow</strong>: settled, but sad.</p>
 <p>You know these sounds already from a lifetime of listening. The skill is attaching the names to them.</p>`,
       w: { type: 'hearfn' },
-      practice: ['Play I–IV–I–V in G and stop on the V. Wait. Feel it pull. Then resolve to I.', 'One round of the ear trainer a day, level 1.'],
+      practice: ['Play I – IV – I – V in G and stop on the V. Wait. Feel it pull. Then resolve to I.', 'One round of “Name the chord” a day, at level 1.'],
       quiz: [
         { q: 'Which chord most wants to resolve to the I?', a: ['IV', 'vi', 'V'], c: 2 },
         { q: 'Which chord feels like home, but sad?', a: ['vi', 'ii', 'V'], c: 0 },
@@ -223,7 +223,7 @@
 <li><strong>Follow the bass.</strong> The lowest note at each change is usually the chord’s root.</li></ol>
 <p>You are now choosing between four likely chords, not every chord in existence.</p>`,
       w: { type: 'family' },
-      practice: ['Solve one loop in Work It Out at level 1. It is this method with the hard parts removed.', 'Pick a song you love and have never looked up. Find home on the low E string. Check yourself online afterwards.', 'Do one new song a week this way. This is the skill you came here for.'],
+      practice: ['Solve one loop in Work It Out at level 1. It is this method with the hard parts removed.', 'Pick a song you love and have never looked up. Find home on the low E string. Check yourself online afterwards.', 'Do one new song a week this way.'],
       tool: { label: 'Open Work It Out', hash: 'train' },
       quiz: [
         { q: 'The key note of a song usually sounds like…', a: ['the highest note', 'the resting point', 'the first note sung'], c: 1 },
@@ -232,10 +232,10 @@
     },
     {
       id: '5-3', stage: 5, mins: 6, title: 'Hear the changes',
-      body: `<p>Now put it together. In the ear trainer you hear home first, then a mystery chord.</p>
+      body: `<p>Now put it together. In “Name the chord” on the Ear tab you hear home first, then a mystery chord.</p>
 <p>Don’t calculate. Ask how it feels next to home. Bright and open: IV. Tense and leaning: V. Settled but sad: vi.</p>
 <p>A few minutes a day beats a long session once a week. Ears grow from frequency.</p>`,
-      w: { type: 'link', label: 'Open the ear trainer', hash: 'train' },
+      w: { type: 'link', label: 'Open Name the chord', hash: 'train' },
       practice: ['One round at level 1 daily until you score 9 out of 10 twice in a row. Then level 2.'],
       quiz: [
         { q: 'What trains your ear fastest?', a: ['One long session a week', 'A few minutes every day', 'Reading about intervals'], c: 1 },
@@ -285,8 +285,8 @@
 <p><strong>Leave space.</strong> Play for two beats, rest for two.<br><strong>Repeat yourself.</strong> Play a short idea, then again with one note changed.<br><strong>Steal rhythm.</strong> Tap the rhythm of a vocal line and play it on two notes.<br><strong>Call and response.</strong> Ask a question that ends on a tense note. Answer it ending on the root.</p>
 <p>Slides, hammer-ons and bends between box notes add the voice. Three notes with good rhythm beat a fast run every time.</p>`,
       w: { type: 'link', label: 'Open the Jam Room', hash: 'jam' },
-      practice: ['The two-note solo: pick two neighbouring box notes and play a full minute using only those. Rhythm is your only tool.', 'Call and response: two bars of question, two bars of answer, for five minutes.', 'One round of Echo a Phrase: hear a line, play it back. That is how other people’s ideas become yours.'],
-      tool: { label: 'Open Echo a Phrase', hash: 'train' },
+      practice: ['The two-note solo: pick two neighboring box notes and play a full minute using only those. Rhythm is your only tool.', 'Call and response: two bars of question, two bars of answer, for five minutes.', 'One round of “Echo a phrase”: hear a line, then play it back.'],
+      tool: { label: 'Open Echo a phrase', hash: 'train' },
       quiz: [
         { q: 'What makes a solo sound musical soonest?', a: ['Speed', 'Rhythm and space', 'Using every note in the scale'], c: 1 },
       ],
@@ -307,11 +307,11 @@
     },
     {
       id: '7-2', stage: 7, mins: 7, title: 'Every key, no capo',
-      body: `<p>With both shapes, any I–IV–V sits inside a few frets.</p>
+      body: `<p>With both shapes, any I – IV – V sits inside a few frets.</p>
 <p>Play the I as an E-shape barre. The <strong>IV is the A shape at the same fret</strong>. The <strong>V is the A shape two frets higher</strong>. That layout holds at every fret, so moving your hand changes the key and you never have to think of a chord name.</p>
 <p>The vi is the E-shape minor three frets below the I. This is the number system under your fingers.</p>`,
       w: { type: 'barrekey' },
-      practice: ['I–IV–V in G with barre shapes at frets 3, 3 and 5. Slide everything up two frets: now you’re in A.', 'Play one of your songs using barre chords only.'],
+      practice: ['I – IV – V in G with barre shapes at frets 3, 3 and 5. Slide everything up two frets: now you’re in A.', 'Play one of your songs using barre chords only.'],
       quiz: [
         { q: 'Your I is an E-shape barre at fret 5. Where is the IV?', a: ['A shape, same fret', 'E shape, two frets up', 'A shape, two frets down'], c: 0 },
       ],
@@ -319,12 +319,12 @@
     {
       id: '7-3', stage: 7, mins: 8, title: 'The jam survival kit',
       body: `<p>Playing with friends is its own skill, and most of it is listening.</p>
-<p><strong>Before you start,</strong> ask “what key?” and “what’s the progression?”. The answer comes in numbers, and you speak that now.</p>
+<p><strong>Before you start,</strong> ask “what key?” and “what’s the progression?” The answer comes in numbers, and you speak that now.</p>
 <p><strong>While playing,</strong> time comes first. Lock to the drummer or the strongest rhythm player. Play less than you think you should: two guitars strumming the same open chords turn to mud, so one strums while the other plays barre shapes higher up or small two-string pieces of the chord.</p>
 <p><strong>Your solo:</strong> box 1, leave space, land on chord tones. <strong>Someone else’s:</strong> get quiet and simple.</p>
 <p><strong>Lost?</strong> Stop. Listen for home. Find the root on the low E string and come back in on the I.</p>`,
       w: { type: 'link', label: 'Open the Jam Room', hash: 'jam' },
-      practice: ['Jam Room, 12-bar blues in A. Alternate twelve bars of rhythm and twelve of lead for ten minutes.', 'Invite a friend. Agree a key and a progression by number. Swap roles every time round.'],
+      practice: ['Jam Room, 12-bar blues in A. Alternate twelve bars of rhythm and twelve of lead for ten minutes.', 'Invite a friend. Agree a key and a progression by number. Swap roles every time around.'],
       quiz: [
         { q: 'The first question at any jam is…', a: ['“What key are we in?”', '“Who’s soloing first?”', '“How fast?”'], c: 0 },
         { q: 'Two guitars strumming identical open chords will…', a: ['sound twice as good', 'sound muddy, so split the roles'], c: 1 },
@@ -341,10 +341,10 @@
       id: 'f-1', stage: 'F', side: true, mins: 6, title: 'A job for every finger',
       body: `<p>Fingerstyle looks like ten things happening at once. It is four fingers with one job each.</p>
 <p>The picking-hand fingers have letter names, p, i, m and a: <strong>p</strong> is the thumb, <strong>i</strong> the index, <strong>m</strong> the middle, <strong>a</strong> the ring finger. Index, middle and ring each own one thin string: <strong>i on the G string, m on the B string, a on the high E string</strong>. They stay there.</p>
-<p>The <strong>thumb owns the three thick strings</strong>, and it is the only one that has to think. It plays the root of the chord. For G that is the low E string, for C the A string, for D the D string. You learned where those roots are in stage 1. This is where it pays off.</p>
+<p>The <strong>thumb owns the three thick strings</strong>, and it is the only one that has to think. It plays the root of the chord. For G that is the low E string, for C the A string, for D the D string. You learned where those roots are in stage 1.</p>
 <p>How to hold the hand is easier to watch than to read, so find one short video on fingerpicking hand position before you start. Then let each finger rest on its string and pluck by closing the hand gently, as if making a loose fist.</p>`,
       w: { type: 'pick', one: true, chords: 'G C D Em Am', patterns: ['roll'], bpm: 56 },
-      practice: ['Hold a C chord. Rest the thumb on the A string and i, m, a on the G, B and high E strings. Pluck them one at a time, slowly, eight times round.', 'Same on G, then D. The fingers stay on their strings. Only the thumb moves, to wherever the root is.', 'For every chord you know, say which string the thumb starts on before you play it.'],
+      practice: ['Hold a C chord. Rest the thumb on the A string and i, m, a on the G, B and high E strings. Pluck them one at a time, slowly, eight times around.', 'Same on G, then D. The fingers stay on their strings. Only the thumb moves, to wherever the root is.', 'For every chord you know, say which string the thumb starts on before you play it.'],
       tool: { label: 'Open Pick Lab', hash: 'train' },
       quiz: [
         { q: 'Which finger is “m”?', a: ['The thumb', 'The middle finger', 'The little finger'], c: 1 },
@@ -359,7 +359,7 @@
 <p>The rule from the rhythm stage carries over: <strong>the picking hand never waits for the fretting hand.</strong> The thumb note comes first in the bar, so in a change, land the finger holding the root first and let the rest of the shape arrive a moment later. Nobody hears the difference.</p>
 <p>A lot of gentle acoustic ballads, Falling Slowly among them, are little more than this: a slow, even pattern over a few open chords.</p>`,
       w: { type: 'pick', chords: 'G Em C D', patterns: ['roll', 'ballad', 'six'], bpm: 60 },
-      practice: ['Forward roll on one chord at 60 until every note is the same volume. Then over two chords.', 'Take a song from your Songbook and press “Fingerpick it”. Play the first line with the forward roll.', 'In each change, put down the finger that holds the root first.'],
+      practice: ['Forward roll on one chord at 60 until every note is the same volume. Then over two chords.', 'Take a song from your Songbook and press “Fingerpick it.” Play the first line with the forward roll.', 'In each change, put down the finger that holds the root first.'],
       tool: { label: 'Open Pick Lab', hash: 'train' },
       quiz: [
         { q: 'An arpeggio is…', a: ['a chord played one note at a time', 'a very fast strum', 'a scale with five notes'], c: 0 },
@@ -381,7 +381,7 @@
       tool: { label: 'Open Pick Lab', hash: 'train' },
       quiz: [
         { q: 'In an alternating bass, the thumb plays…', a: ['once a bar', 'on every beat', 'only with the fingers'], c: 1 },
-        { q: 'What do you practise first?', a: ['The full pattern, slowly', 'The fingers on their own', 'The thumb alone, until it is automatic'], c: 2 },
+        { q: 'What do you practice first?', a: ['The full pattern, slowly', 'The fingers on their own', 'The thumb alone, until it is automatic'], c: 2 },
         { q: 'Your thumb stumbles when you add the fingers. You should…', a: ['go back a step', 'speed up', 'drop the thumb and keep the fingers'], c: 0 },
       ],
     },

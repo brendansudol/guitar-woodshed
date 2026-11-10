@@ -5,7 +5,7 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const P = T.pretty;
 
-  /* marks: { 's:f': { t: label, d: 1-7 degree colour (0 = pearl), ring, dim, state } } */
+  /* marks: { 's:f': { t: label, d: 1-7 degree color (0 = pearl), ring, dim, state } } */
   function fretboard(o) {
     const frets = o.frets || 15, fw = 54, nutX = 48, top = 24, gap = 27;
     const width = nutX + frets * fw + 14, height = top + 5 * gap + 40;
@@ -100,10 +100,10 @@
       if (f < 0) { h += `<text x="${cx}" y="${y0 - 7}" text-anchor="middle" class="cbox-x">×</text>`; return; }
       const pc = (T.TUNING[s] + f) % 12, ivl = T.mod(pc - ch.root);
       const d = T.DEG_OF[ivl];
-      const colour = o.tones ? `var(--d${d})` : ivl === 0 ? 'var(--d1)' : 'var(--fg)';
-      if (f === 0) { h += `<circle cx="${cx}" cy="${y0 - 10}" r="3.6" fill="${o.tones || ivl === 0 ? colour : 'none'}" stroke="${colour}" stroke-width="1.3"/>`; return; }
+      const color = o.tones ? `var(--d${d})` : ivl === 0 ? 'var(--d1)' : 'var(--fg)';
+      if (f === 0) { h += `<circle cx="${cx}" cy="${y0 - 10}" r="3.6" fill="${o.tones || ivl === 0 ? color : 'none'}" stroke="${color}" stroke-width="1.3"/>`; return; }
       const cy = y0 + (f - base + 0.5) * fg;
-      h += `<circle cx="${cx}" cy="${cy}" r="${o.labels ? 5.8 : 5.2}" fill="${colour}"/>`;
+      h += `<circle cx="${cx}" cy="${cy}" r="${o.labels ? 5.8 : 5.2}" fill="${color}"/>`;
       if (o.labels) h += `<text x="${cx}" y="${cy + 2.4}" text-anchor="middle" class="cbox-l" fill="${o.tones ? `var(--d${d}-ink)` : ivl === 0 ? 'var(--d1-ink)' : 'var(--bg)'}">${esc(P(o.labels === 'note' ? T.noteName(pc, ch.flats) : T.IVL[ivl]))}</text>`;
     });
     return h + '</svg>';
@@ -141,7 +141,7 @@
 
   const degTag = (num, deg) => `<span class="deg d${deg}">${esc(P(num))}</span>`;
 
-  /* A chord as a tappable tile: name, numeral in its degree colour. */
+  /* A chord as a tappable tile: name, numeral in its degree color. */
   function chordTile(ch, keyPc, o = {}) {
     const num = keyPc == null ? '' : T.numeral(ch, keyPc);
     const deg = keyPc == null ? 0 : T.degreeOf(ch.root, keyPc);

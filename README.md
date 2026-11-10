@@ -17,9 +17,9 @@ An interactive guitar course for people who can play a few songs and want to und
   7. Any chord, anywhere
 
   Plus a **fingerstyle side track** of five lessons that runs alongside the path without holding it up: a job for every finger, arpeggios, the alternating thumb, pairs of notes that climb the neck, and finding a tune inside a chord shape.
-- **Neck**: any scale or chord across the fretboard, coloured by scale degree.
-- **Keys**: the seven chords of any key, common progressions, and capo options.
-- **Songs**: type in a song's chords and it finds the key, rewrites the chords as numbers, names the pattern and flags chords you don't know yet. Each song tracks how well you know it, toward a standing target of five songs from memory.
+- **Neck**: any scale or chord across the fretboard, colored by scale degree.
+- **Keys**: the seven chords of any key, common loops, and capo options.
+- **Songs**: type in a song's chords and it finds the key, rewrites the chords as numbers, names the loop and flags chords you don't know yet. Each song tracks how well you know it, toward a standing target of five songs from memory.
 - **Jam**: a backing band in any key, with the safe notes shown and the current chord's notes ringed.
 - **Train**: seven trainers.
   - Note Finder and Key Chords quizzes.
@@ -29,7 +29,7 @@ An interactive guitar course for people who can play a few songs and want to und
   - Strum Lab.
   - Pick Lab: fingerpicking patterns (rolls, alternating thumb, Travis) shown as a string-by-string grid over any chords, with the thumb placed on each chord's root automatically. Song cards have a "Fingerpick it" button that loads a song into it.
 - **Tuner**: reference tones for each string, plus a listening tuner that uses the microphone (standalone site only).
-- **Guide**: a one-minute "how to read this app" page and a glossary. Dotted-underlined words in lessons can be tapped for a definition.
+- **Guide**: a two-minute "how to read this app" page and a glossary. Dotted-underlined words in lessons can be tapped for a definition.
 
 All sound is synthesized in the browser with the Web Audio API. There are no dependencies, no build framework and no backend. Progress is saved in your browser's local storage.
 

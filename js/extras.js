@@ -6,13 +6,13 @@
   /* ================= Move-on targets ================= */
   const days = (key) => (S.goals[key] || []).length;
   const GOALS = {
-    1: { text: 'Score 9 out of 10 in Note Finder on strings 6 and 5, on two different days.', need: 2, unit: 'days', have: () => days('notes65'), go: { hash: 'train', tab: 'notes', label: 'Note Finder' } },
+    1: { text: 'Score 9 out of 10 in Note Finder on the low E and A strings, on two different days.', need: 2, unit: 'days', have: () => days('notes65'), go: { hash: 'train', tab: 'notes', label: 'Note Finder' } },
     2: { text: 'Score 8 out of 10 in Key Chords, on two different days.', need: 2, unit: 'days', have: () => days('keys8'), go: { hash: 'train', tab: 'keys', label: 'Key Chords' } },
     3: { text: 'Decode three of your own songs in the Songbook.', need: 3, unit: 'songs', have: () => S.songs.filter((s) => !s.example).length, go: { hash: 'songs', label: 'Songbook' } },
     4: { text: 'Reach 30 clean changes in one minute between any two chords.', need: 30, unit: 'changes', have: () => Math.max(0, ...Object.values(S.changes)), go: { lesson: '4-3', label: 'One-minute changes' } },
     5: { text: 'Work out five loops by ear in Work It Out, at any level.', need: 5, unit: 'loops', have: () => (S.drills.work || [0])[0], go: { hash: 'train', tab: 'work', label: 'Work It Out' } },
     6: { text: 'Play in the Jam Room on five different days.', need: 5, unit: 'days', have: () => Object.values(S.log).filter((d) => d.j).length, go: { hash: 'jam', label: 'Jam Room' } },
-    7: { text: 'Score 9 out of 10 in Note Finder on strings 6 and 5 with sharps switched on.', need: 1, unit: 'round', have: () => days('notes65s'), go: { hash: 'train', tab: 'notes', label: 'Note Finder' } },
+    7: { text: 'Score 9 out of 10 in Note Finder on the low E and A strings with sharps switched on.', need: 1, unit: 'round', have: () => days('notes65s'), go: { hash: 'train', tab: 'notes', label: 'Note Finder' } },
     F: { label: 'This track has stuck when', text: 'You have played along in Pick Lab for a minute or more, on five different days.', need: 5, unit: 'days', have: () => days('pick'), go: { hash: 'train', tab: 'pick', label: 'Pick Lab' } },
   };
   function goal(n) {
@@ -52,14 +52,14 @@
     const terms = Object.values(W.GLOSSARY).slice().sort((a, b) => a.t.localeCompare(b.t));
     const part = (n, title, left, points) => `<section class="stage"><div class="stage-n">${n}</div>
       <div class="stack"><h2>${title}</h2>${left}<ul class="points">${points.map((p) => `<li>${p}</li>`).join('')}</ul></div></section>`;
-    return `<div class="head"><span class="eyebrow">Guide · one minute</span><h1>How to read this app</h1>
-        <p class="lede">Four kinds of picture turn up on every screen. Once you can read them, the rest of the app explains itself. Any word with a dotted underline can be tapped for a plain definition.</p></div>
+    return `<div class="head"><span class="eyebrow">Guide · two minutes</span><h1>How to read this app</h1>
+        <p class="lede">The same few pictures turn up on every screen. Once you can read them, the rest of the app explains itself. Any word with a dotted underline can be tapped for a plain definition.</p></div>
       <div>
       ${part(1, 'The neck', neck, [
         '<strong>The thickest string is at the bottom</strong>, the thinnest at the top. It is the neck as you see it looking down at your own guitar, and the same way tab is written.',
         'The pale strip on the left is the <strong>nut</strong>. A dot to the left of it means: play that string open.',
         'The numbers underneath are <strong>frets</strong>. The pale inlay dots sit at 3, 5, 7, 9 and 12, exactly as on your guitar.',
-        'A coloured dot is a note to play. <strong>Tap any spot on any neck to hear it.</strong>',
+        'A colored dot is a note to play. <strong>Tap any spot on any neck to hear it.</strong>',
       ])}
       ${part(2, 'Chord boxes', `<div class="tiles">${[G, F, Csm].map((c) => R.chordTile(c, null, { box: true })).join('')}</div>`, [
         'A chord box is the neck stood upright: <strong>strings run top to bottom, thickest on the left</strong>. The heavy bar across the top is the nut.',
@@ -68,13 +68,13 @@
         '“4fr” beside a box means it starts at fret 4, not at the nut.',
         'The <strong>red</strong> dot is the root, the note the chord is named after. Tap a chord to hear it strummed.',
       ])}
-      ${part(3, 'Numbers and colours', `<div class="stack"><div class="legend">${T.SCALES.major.steps.map((st, i) => `<span class="pair">${R.degTag(String(i + 1), i + 1)} ${T.noteName(7 + st)}</span>`).join('')}</div>
+      ${part(3, 'Numbers and colors', `<div class="stack"><div class="legend">${T.SCALES.major.steps.map((st, i) => `<span class="pair">${R.degTag(String(i + 1), i + 1)} ${T.noteName(7 + st)}</span>`).join('')}</div>
           <div class="tiles">${[0, 3, 4, 5].map((i) => R.chordTile(fam[i].chord, 7, {})).join('')}</div></div>`, [
-        'Every key has seven notes, numbered <strong>1 to 7</strong>. Above is the key of G. Each number keeps the same colour everywhere, and <strong>red is always 1</strong>, the home note.',
+        'Every key has seven notes, numbered <strong>1 to 7</strong>. Above is the key of G. Each number keeps the same color everywhere, and <strong>red is always 1</strong>, the home note.',
         'Chords get the same numbers, written as <strong>roman numerals</strong>. Capitals are major chords, lower-case are minor. In G: G is I, C is IV, D is V, Em is vi.',
         'You don’t need to understand why yet. Stage 2 explains where the numbers come from. For now, read them as labels that stay the same when the key changes.',
       ])}
-      ${part(4, 'Rings, dashes and arrows', `<div class="stack"><div class="tiles">${R.chordTile(T.parseChord('Bm'), 7, { cls: 'new' })}</div>${R.strumGrid('faithful')}${R.pickGrid(T.parseChord('C'), 'roll')}</div>`, [
+      ${part(4, 'Rings, dashes, arrows and grids', `<div class="stack"><div class="tiles">${R.chordTile(T.parseChord('Bm'), 7, { cls: 'new' })}</div>${R.strumGrid('faithful')}${R.pickGrid(T.parseChord('C'), 'roll')}</div>`, [
         'A <strong>ring</strong> around a note (see the G on the neck in part 1) means it belongs to the chord playing right now. Good notes to land on.',
         'A <strong>dashed outline</strong> on a chord means it isn’t in your list of chords yet. Change the list on the Today screen.',
         'In strumming patterns, <strong>solid arrows</strong> hit the strings. Faint arrows are your hand passing by without touching them.',

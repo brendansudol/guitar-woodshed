@@ -7,7 +7,7 @@ An interactive guitar course for people who can play a few songs and want to und
 ## What's in it
 
 - **Today**: a 20-minute daily plan in four blocks (warm up, learn, apply to a song you know, jam), with a streak.
-- **Path**: 7 stages and 23 short lessons, each with a playable demo, an on-guitar assignment and a quick check.
+- **Path**: 24 short lessons, each with a playable demo, an on-guitar assignment and a quick check. A day-one lesson decodes one of your own songs, then seven stages follow. Each stage ends with a "move on when" target tied to your drill scores, so finishing the reading is not the same as finishing the stage.
   1. The map (note names on the neck)
   2. Where chords come from
   3. Songs are numbers
@@ -20,6 +20,8 @@ An interactive guitar course for people who can play a few songs and want to und
 - **Songs**: type in a song's chords and it finds the key, rewrites the chords as numbers, names the pattern and flags chords you don't know yet.
 - **Jam**: a backing band in any key, with the safe notes shown and the current chord's notes ringed.
 - **Train**: note finder, key-chord quiz, ear trainer and strum lab.
+- **Tuner**: reference tones for each string, plus a listening tuner that uses the microphone (standalone site only).
+- **Guide**: a one-minute "how to read this app" page and a glossary. Dotted-underlined words in lessons can be tapped for a definition.
 
 All sound is synthesized in the browser with the Web Audio API. There are no dependencies, no build framework and no backend. Progress is saved in your browser's local storage.
 
@@ -39,10 +41,12 @@ Then open http://localhost:4173.
 | --- | --- |
 | `index.html` | Styles and page shell. A fragment, not a full document (see below). |
 | `js/theory.js` | Notes, scales, chords, keys, chord shapes, key detection. No DOM, no audio. |
-| `js/audio.js` | Plucked-string synthesis, drums, bass and the step sequencer. |
+| `js/audio.js` | Plucked-string synthesis, drums, bass, the step sequencer and pitch detection. |
 | `js/render.js` | SVG fretboard, chord boxes, strum grids. |
 | `js/lessons.js` | The curriculum text and quiz data. |
 | `js/core.js` | Saved state, routing, event handling. |
+| `js/glossary.js` | Term definitions and the tap-to-define popover. |
+| `js/extras.js` | Guide, tuner and the per-stage targets. |
 | `js/learn.js` | Today, Path and the lesson widgets. |
 | `js/tools.js` | Neck, Keys and Songs. |
 | `js/play.js` | Jam room and trainers. |

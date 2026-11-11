@@ -52,11 +52,10 @@
     lydian: { l: 'Lydian', word: 'Lydian', par: 7, box: -3, scales: ['lydian', 'majPent'], mode: 'IV' },
     phrygian: { l: 'Phrygian', word: 'Phrygian', par: 8, box: 0, scales: ['phrygian', 'minPent'], mode: 'iii' },
   };
-  const PENTS = ['minPent', 'majPent', 'blues'];
   const homeName = (feel, key) => (feel === 'minor' ? T.minorKeyName(key) : FEELS[feel].mode ? T.noteName(key, T.keyFlats(key + FEELS[feel].par)) : T.keyName(key));
   const TIPS = {
-    major: 'In a major key the box sits three frets below the key note. Lean on the red note and it sounds sweet.',
-    minor: 'In a minor key the box starts on the key note itself. Red is home. Bend the 4 toward the 5 for instant blues.',
+    major: 'In a major key box 1 sits three frets below the key note. Lean on the red note and it sounds sweet.',
+    minor: 'In a minor key box 1 starts on the key note itself. Red is home. Bend the 4 toward the 5 for instant blues.',
     blues: 'Minor pentatonic over major chords is the blues sound: that clash is the point. Rest on red, b7 and 5.',
     dorian: 'Dorian is a minor sound with one bright note, the 6. Your minor pentatonic box still fits. Add the 6 and land on it over the major chord: that note is the whole Dorian sound.',
     mixo: 'Mixolydian is a major sound with a flattened 7, the sound of a lot of classic rock. The major pentatonic fits. Add the b7: it is the one note that separates this from plain major.',
@@ -64,6 +63,38 @@
     phrygian: 'Phrygian is minor with a flattened 2, dark and Spanish-sounding. Your minor pentatonic box fits. Add the b2, one fret above home, and fall back onto the red note.',
   };
 
+  /* The five pentatonic boxes, as fret offsets from the first fret of box 1. Each one starts where the last one ends. */
+  const BOXES = [[0, 3], [2, 5], [4, 8], [7, 10], [9, 12]];
+  function boxWin(f, n) {
+    let [lo, hi] = BOXES[n - 1].map((x) => x + f);
+    while (hi > 15) { lo -= 12; hi -= 12; }       // keep it on the part of the neck that is drawn
+    return [lo, hi];
+  }
+  /* The notes that make up a box, as a playable shape. The pentatonic box is the frame: two notes per string inside its frets.
+     A scale with more notes adds them inside those frets, or one fret outside when a note falls nowhere else.
+     A pitch that could be fretted in two places is shown once. Returns the notes to light and the frets they span. */
+  function boxInfo(s, scaleKey) {
+    const [lo, hi] = s.pwin;
+    const scale = new Set(T.SCALES[scaleKey].steps.map((x) => T.mod(s.tonic + x)));
+    const frame = new Set(T.SCALES.minPent.steps.map((x) => T.mod(s.mroot + x)));
+    const keep = new Set(), heard = new Set(), edge = [];
+    for (let st = 0; st < 6; st++) {
+      for (let fr = lo; fr <= hi; fr++) if (scale.has((T.TUNING[st] + fr) % 12)) { keep.add(st + ':' + fr); heard.add(T.TUNING[st] + fr); }
+      [lo - 1, hi + 1].forEach((fr) => { const pc = (T.TUNING[st] + fr) % 12; if (fr >= 0 && fr <= 15 && scale.has(pc) && !frame.has(pc)) edge.push([fr, st]); });
+    }
+    /* Edge notes only fill gaps inside the box's range. They never stretch it lower or higher. */
+    const bottom = Math.min(...heard), top = Math.max(...heard);
+    edge.sort((a, b) => a[0] - b[0]).forEach(([fr, st]) => { const m = T.TUNING[st] + fr; if (m > bottom && m < top && !heard.has(m)) { heard.add(m); keep.add(st + ':' + fr); } });
+    const frets = [...keep].map((k) => +k.split(':')[1]);
+    return { keep, lo: Math.min(...frets), hi: Math.max(...frets) };
+  }
+  /* Slide the neck sideways so the highlighted box is in view (it matters on a phone). */
+  function showBox() {
+    const wrap = document.querySelector('#jam-fb .fb-wrap'), win = wrap && wrap.querySelector('.fb-win');
+    if (!win) return;
+    const a = win.getBoundingClientRect(), b = wrap.getBoundingClientRect();
+    wrap.scrollLeft += a.left + a.width / 2 - (b.left + b.width / 2);
+  }
   function jamSetup() {
     const j = U.jam, custom = j.custom;
     const list = JAMS[j.feel];
@@ -75,18 +106,20 @@
     const scales = F.scales;
     if (!scales.includes(j.scale)) j.scale = scales[0];
     const mroot = j.key + F.box, f = T.mod(mroot - 4);
-    const pent = PENTS.includes(j.scale);
-    return { majorKey, fl, chords, scales, tonic: j.key, f, win: pent ? [f, f + 3] : [Math.max(0, f - 1), f + 4] };
+    if (!(j.box >= 1 && j.box <= 5)) j.box = 1;
+    return { majorKey, fl, chords, scales, tonic: j.key, mroot, f, pwin: boxWin(f, j.box) };
   }
   function jamBoard(ci) {
     const j = U.jam, s = jamSetup(), ch = s.chords[ci || 0], box = j.pos === 'box';
-    const marks = R.scaleMarks({ root: s.tonic, pcs: T.SCALES[j.scale].steps.map((x) => s.tonic + x), label: j.label, colorRoot: s.tonic, from: box ? s.win[0] : 0, to: box ? s.win[1] : 15, dimOutside: box, ringPcs: ch.tones, flats: s.fl });
+    const marks = R.scaleMarks({ root: s.tonic, pcs: T.SCALES[j.scale].steps.map((x) => s.tonic + x), label: j.label, colorRoot: s.tonic, ringPcs: ch.tones, flats: s.fl });
+    const info = box ? boxInfo(s, j.scale) : null;
+    if (info) Object.keys(marks).forEach((k) => { if (!info.keep.has(k)) { marks[k].dim = true; marks[k].ring = false; } });
     /* Lydian's extra note is a raised 4, not a flattened 5. */
     if (j.scale === 'lydian') Object.keys(marks).forEach((k) => {
       const [st, fr] = k.split(':').map(Number);
       if (T.mod(T.TUNING[st] + fr - s.tonic) === 6) { marks[k].d = 4; if (j.label === 'degree') marks[k].t = '#4'; }
     });
-    return R.fretboard({ id: 'jam', marks, window: box ? s.win : null });
+    return R.fretboard({ id: 'jam', marks, window: info ? [info.lo, info.hi] : null });
   }
   function jamNow(big, small) { const a = $('jam-now'), b = $('jam-sub'); if (a) a.textContent = big; if (b) b.textContent = small; }
 
@@ -142,11 +175,15 @@
       <section class="stack">
         <div class="row" style="gap:16px 28px;align-items:flex-start">
           <div class="stack tight"><span class="label">Scale</span>${chips(s.scales.map((k) => ({ v: k, l: T.SCALES[k].name })), j.scale, 'set', 'data-path="jam.scale" data-keep="1"')}</div>
-          <div class="stack tight"><span class="label">Where</span>${chips([{ v: 'box', l: s.f === 0 ? 'Box 1 (open)' : 'Box 1 (fret ' + s.f + ')' }, { v: 'neck', l: 'Whole neck' }], j.pos, 'set', 'data-path="jam.pos" data-keep="1"')}</div>
+          <div class="stack tight"><span class="label">Where</span><div class="chips" role="group"><span class="chip-lead">Box</span>${[1, 2, 3, 4, 5].map((n) => {
+            const on = j.pos === 'box' && j.box === n;
+            return `<button type="button" class="chip${on ? ' on' : ''}" data-act="jamPos" data-v="${n}" aria-pressed="${on}" aria-label="Box ${n}">${n}</button>`;
+          }).join('')}<button type="button" class="chip${j.pos === 'neck' ? ' on' : ''}" data-act="jamPos" data-v="neck" aria-pressed="${j.pos === 'neck'}">Whole neck</button></div>
+            <span class="small muted">${j.pos === 'box' ? (() => { const b = boxInfo(s, j.scale); return `Box ${j.box}: ${b.lo === 0 ? 'open strings' : 'fret ' + b.lo} to fret ${b.hi}`; })() : 'Every position at once'}</span></div>
           <div class="stack tight"><span class="label">Label with</span>${chips([{ v: 'degree', l: 'Numbers' }, { v: 'note', l: 'Note names' }], j.label, 'set', 'data-path="jam.label" data-keep="1"')}</div>
         </div>
         <div id="jam-fb">${jamBoard(ci)}</div>
-        <p class="note">${TIPS[j.feel]}${modeNote} Start with one ringed note per chord, held for the whole bar.</p>
+        <p class="note">${TIPS[j.feel]}${modeNote}${j.pos === 'box' && j.box > 1 ? ` Box ${j.box} is the same set of notes as box 1, further along the neck. Its lower edge is the upper edge of box ${j.box - 1}, and those shared notes are where you slide from one box to the next.` : ''} Start with one ringed note per chord, held for the whole bar.</p>
       </section>`;
   };
 
@@ -158,6 +195,7 @@
       U.jam[k] = k === 'feel' ? v : +v;
       if (k === 'feel') { U.jam.prog = 0; U.jam.scale = FEELS[v].scales[0]; }
       W.render();
+      showBox();
     },
     jamMix(el) {
       const k = el.dataset.k;
@@ -165,6 +203,12 @@
       if (A.player.id === 'jam') A.player.opts[k] = U.jam[k];
       el.classList.toggle('on', U.jam[k]);
       el.setAttribute('aria-pressed', U.jam[k]);
+    },
+    jamPos(el) {
+      const v = el.dataset.v;
+      if (v === 'neck') U.jam.pos = 'neck'; else { U.jam.pos = 'box'; U.jam.box = +v; }
+      W.render();
+      showBox();
     },
     jamClear() { A.stop(); U.jam.custom = null; W.render(); },
     jamIn(el) { U.jam.custom = null; U.jam.feel = 'major'; U.jam.key = +el.dataset.key; U.jam.prog = 0; W.go('jam'); },
@@ -350,6 +394,7 @@
       </div>`;
   }
 
+  W.JAM = { jamSetup, boxInfo }; // for checks
   W.TRAIN = { order: ['notes', 'keys', 'ear', 'strum'], labels: { notes: 'Note Finder', keys: 'Key Chords', ear: 'Ear', strum: 'Strum Lab' }, fns: { notes: notesTab, keys: keysTab, ear: earTab, strum: strumTab } };
   W.VIEWS.train = function () {
     const tab = U.tr.tab;

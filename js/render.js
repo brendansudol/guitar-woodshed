@@ -18,7 +18,7 @@
     if (o.window) {
       const [lo, hi] = o.window;
       const x0 = lo === 0 ? nutX : nutX + (lo - 1) * fw, x1 = nutX + hi * fw;
-      h += `<rect x="${x0}" y="${top - 12}" width="${x1 - x0}" height="${5 * gap + 24}" fill="var(--board-lit)"/>`;
+      h += `<rect x="${x0}" y="${top - 12}" width="${x1 - x0}" height="${5 * gap + 24}" fill="var(--board-lit)" class="fb-win"/>`;
     }
     [3, 5, 7, 9, 15].filter((f) => f <= frets).forEach((f) => { h += `<circle cx="${x(f)}" cy="${top + 2.5 * gap}" r="6" fill="var(--inlay)" opacity=".55"/>`; });
     if (frets >= 12) h += `<circle cx="${x(12)}" cy="${top + 1.5 * gap}" r="6" fill="var(--inlay)" opacity=".55"/><circle cx="${x(12)}" cy="${top + 3.5 * gap}" r="6" fill="var(--inlay)" opacity=".55"/>`;

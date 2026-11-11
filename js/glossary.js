@@ -11,7 +11,7 @@
     halfstep: { t: 'Half step', re: /\bhalf step\b/i, d: 'The distance of one fret. The smallest step in Western music.' },
     wholestep: { t: 'Whole step', re: /\bwhole step\b/i, d: 'The distance of two frets. Two half steps.' },
     open: { t: 'Open string', re: /\bopen strings?\b/i, d: 'A string played without fretting it. Shown as a small circle above a chord box, or as a dot to the left of the nut on the neck.' },
-    box: { t: 'Box 1', re: /\bbox 1\b/i, d: 'The first position of the pentatonic scale: a shape with two notes per string that fits under one hand, four frets wide.' },
+    box: { t: 'Box 1', re: /\bbox 1\b/i, d: 'The first position of the pentatonic scale: a shape with two notes per string that fits under one hand, four frets wide. Boxes 2 to 5 are the same five notes further along the neck, each starting where the last one ends.' },
     pent: { t: 'Pentatonic', re: /\bpentatonic\b/i, d: 'A five-note scale. The minor pentatonic is the standard choice for riffs and solos because none of its notes clash.' },
     hammer: { t: 'Hammer-on', re: /\bhammer-ons?\b/i, d: 'Sounding a higher note by tapping a fretting finger down hard on a string that is already ringing, without picking again.' },
     root: { t: 'Root', re: /\broots?\b/i, d: 'The note a chord or scale is named after and built from. The root of a G chord is G. It is usually the lowest note you play, and it is always red in this app.' },

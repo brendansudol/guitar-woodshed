@@ -29,7 +29,7 @@
     neck: { root: 7, show: 'major', label: 'note' },
     key: 7,
     songs: { edit: null, tr: {}, del: null, err: '' },
-    jam: { key: 9, feel: 'minor', prog: 0, bpm: 84, scale: 'minPent', pos: 'box', label: 'degree', drums: true, bass: true, guitar: true, custom: null },
+    jam: { key: 9, feel: 'minor', prog: 0, bpm: 84, scale: 'minPent', pos: 'box', box: 1, label: 'degree', drums: true, bass: true, guitar: true, custom: null },
     tune: { listening: false, err: '', ref: null },
     tr: {
       tab: 'notes',

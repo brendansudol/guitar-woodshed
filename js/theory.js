@@ -201,17 +201,45 @@
   };
   const REDUCE = { add9: 'maj', six: 'maj', min6: 'min', nine: 'dom7' };
 
+  /* Fretting-hand fingers for each shape, string by string from the low E: 1 index, 2 middle, 3 ring, 4 little finger,
+     0 or x where no finger is needed. Where a chord has more than one accepted fingering this is the one most often taught. */
+  const OPEN_FING = {
+    'C': 'x32010', 'D': 'xx0132', 'G': '210003', 'F': '134211', 'B': 'x12341',
+    'Dm': 'xx0231', 'Bm': 'x13421',
+    'C7': 'x32410', 'D7': 'xx0213', 'G7': '320001', 'B7': 'x21304',
+    'Cmaj7': 'x32000', 'Dmaj7': 'xx0111', 'Gmaj7': '320001', 'Fmaj7': 'xx3210',
+    'Dm7': 'xx0211', 'Em7': '023040',
+    'Dsus2': 'xx0130', 'Dsus4': 'xx0134', 'Gsus4': '230014', 'Csus4': 'x34011', 'Csus2': 'x10034',
+    'Cadd9': 'x32040', 'Gadd9': '310204', 'Dadd9': 'xx0141', 'G6': '210000', 'C6': 'x42310', 'D6': 'xx0102',
+    'D5': 'xx013x',
+  };
+  /* [as an open chord, as a barre chord]. In the barre form the index finger lies across the strings marked 1. */
+  const E_FING = {
+    maj: ['023100', '134211'], min: ['023000', '134111'], dom7: ['020100', '131211'], min7: ['020000', '131111'],
+    maj7: ['0x120x', '1x342x'], sus4: ['023400', '123411'], dom7sus4: ['020300', '131411'], five: ['012xxx', '134xxx'],
+    add9: ['024100', '134211'], six: ['023140', '133241'], min6: ['023040', '123141'], nine: ['020103', '131214'],
+  };
+  const A_FING = {
+    maj: ['x01230', 'x12341'], min: ['x02310', 'x13421'], dom7: ['x02030', 'x13141'], min7: ['x02010', 'x13121'],
+    maj7: ['x02130', 'x13241'], sus4: ['x01230', 'x12341'], sus2: ['x01200', 'x13411'], dom7sus4: ['x01030', 'x13141'],
+    dim: ['x0132x', 'x1243x'], m7b5: ['x0102x', 'x1324x'], aug: ['x04231', 'x14332'], five: ['x012xx', 'x134xx'],
+    add9: ['x01420', 'x12431'], six: ['x01111', 'x13333'], min6: ['x02314', 'x13324'], nine: ['x01423', 'x21333'],
+  };
+  const fingerList = (str) => str.split('').map((c) => (c === 'x' ? 0 : +c));
+
   function voicing(ch, force) {
     const key = SHARP[ch.root] + Q[ch.q].s;
     if (!force && OPEN[key]) {
-      return { frets: OPEN[key].split('').map((c) => (c === 'x' ? X : +c)), shape: key === 'F' || key === 'B' || key === 'Bm' ? 'barre' : 'open' };
+      return { frets: OPEN[key].split('').map((c) => (c === 'x' ? X : +c)), fingers: fingerList(OPEN_FING[key]), shape: key === 'F' || key === 'B' || key === 'Bm' ? 'barre' : 'open' };
     }
     const q = E_SHAPE[ch.q] || A_SHAPE[ch.q] ? ch.q : REDUCE[ch.q] || 'maj';
     const f = mod(ch.root - 4), a = mod(ch.root - 9);
     const useE = force ? force === 'E' : E_SHAPE[q] && (!A_SHAPE[q] || f <= a);
     const frets = useE && E_SHAPE[q] ? E_SHAPE[q](f) : A_SHAPE[q](a);
     const pos = useE && E_SHAPE[q] ? f : a;
-    return { frets, shape: pos === 0 ? 'open' : useE && E_SHAPE[q] ? 'E' : 'A', pos };
+    let fing = (useE && E_SHAPE[q] ? E_FING : A_FING)[q][pos === 0 ? 0 : 1];
+    if (q === 'nine' && pos === 1 && !(useE && E_SHAPE[q])) fing = 'x10222'; // at the first fret this shape has an open D string
+    return { frets, fingers: fingerList(fing), shape: pos === 0 ? 'open' : useE && E_SHAPE[q] ? 'E' : 'A', pos };
   }
   const voicingMidis = (v) => v.frets.map((f, s) => (f < 0 ? null : TUNING[s] + f));
 

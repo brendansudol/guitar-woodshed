@@ -101,10 +101,17 @@
       const pc = (T.TUNING[s] + f) % 12, ivl = T.mod(pc - ch.root);
       const d = T.DEG_OF[ivl];
       const color = o.tones ? `var(--d${d})` : ivl === 0 ? 'var(--d1)' : 'var(--fg)';
-      if (f === 0) { h += `<circle cx="${cx}" cy="${y0 - 10}" r="3.6" fill="${o.tones || ivl === 0 ? color : 'none'}" stroke="${color}" stroke-width="1.3"/>`; return; }
+      const ink = o.tones ? `var(--d${d}-ink)` : ivl === 0 ? 'var(--d1-ink)' : 'var(--bg)';
+      /* labels: 'finger' numbers the fretting fingers; 'ivl' and 'note' name each note, open strings included. */
+      const text = o.labels === 'finger' ? (v.fingers && v.fingers[s] ? String(v.fingers[s]) : '') : o.labels === 'note' ? T.noteName(pc, ch.flats) : o.labels ? T.IVL[ivl] : '';
+      if (f === 0) {
+        if (text) h += `<circle cx="${cx}" cy="${y0 - 10.4}" r="4.9" fill="${color}"/><text x="${cx}" y="${y0 - 8.4}" text-anchor="middle" class="cbox-l open" fill="${ink}">${esc(P(text))}</text>`;
+        else h += `<circle cx="${cx}" cy="${y0 - 10}" r="3.6" fill="${o.tones || ivl === 0 ? color : 'none'}" stroke="${color}" stroke-width="1.3"/>`;
+        return;
+      }
       const cy = y0 + (f - base + 0.5) * fg;
       h += `<circle cx="${cx}" cy="${cy}" r="${o.labels ? 5.8 : 5.2}" fill="${color}"/>`;
-      if (o.labels) h += `<text x="${cx}" y="${cy + 2.4}" text-anchor="middle" class="cbox-l" fill="${o.tones ? `var(--d${d}-ink)` : ivl === 0 ? 'var(--d1-ink)' : 'var(--bg)'}">${esc(P(o.labels === 'note' ? T.noteName(pc, ch.flats) : T.IVL[ivl]))}</text>`;
+      if (text) h += `<text x="${cx}" y="${cy + 2.4}" text-anchor="middle" class="cbox-l" fill="${ink}">${esc(P(text))}</text>`;
     });
     return h + '</svg>';
   }

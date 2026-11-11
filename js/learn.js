@@ -64,7 +64,7 @@
     if (!names.includes(st.a)) st.a = names[0];
     if (!names.includes(st.b) || st.b === st.a) st.b = names.find((n) => n !== st.a);
     const pair = pairKey(st.a, st.b), all = changeBests(), best = all[pair] || 0;
-    const run = U.chg;
+    const run = U.chg, last = U.chgLast && U.chgLast.pair === pair ? U.chgLast : null;
     const slow = Object.entries(all).sort((x, y) => x[1] - y[1]).slice(0, 3);
     const untried = [];
     names.slice(0, 6).forEach((a, i) => names.slice(i + 1, 6).forEach((b) => { if (!all[pairKey(a, b)] && untried.length < 3) untried.push([a, b]); }));
@@ -74,15 +74,20 @@
         <div class="stack tight"><span class="label">From</span>${chips(names, st.a, 'set', `data-path="${path}a"`)}</div>
         <div class="stack tight"><span class="label">To</span>${chips(names.filter((n) => n !== st.a), st.b, 'set', `data-path="${path}b"`)}</div></div>
       <div class="row" style="gap:28px">
-        <div><div class="stat-n" id="chg-left">${run ? run.left : 60}</div><span class="label">seconds</span></div>
-        <div><div class="stat-n" id="chg-count">${run ? run.count : 0}</div><span class="label">changes</span></div>
+        <div><div class="stat-n" id="chg-left">${run ? (run.phase === 'in' ? run.lead : run.left) : 60}</div><span class="label" id="chg-left-label">${run && run.phase === 'in' ? 'get ready' : 'seconds'}</span></div>
+        <div><div class="stat-n">${last ? last.n : '–'}</div><span class="label">last count</span></div>
         <div><div class="stat-n muted">${best}</div><span class="label">best ${esc(P(pair))}</span></div>
       </div>
       <div class="stack tight" style="max-width:420px"><div class="bar marks"><i style="width:${Math.min(100, (best / 60) * 100)}%"></i></div>
         <div class="row between small muted"><span>0</span><span>30 comfortable</span><span>60 fluent</span></div><span class="small"><strong>${level}</strong></span></div>
-      <div class="row">${run
-        ? `<button type="button" class="btn primary big" data-act="chgTap">Tap for each clean change</button><button type="button" class="btn quiet" data-act="chgStop">Cancel</button>`
-        : `<button type="button" class="btn primary" data-act="chgStart" data-pair="${esc(pair)}">Start 60 seconds</button>`}</div>
+      ${!run ? `<div class="row"><button type="button" class="btn primary" data-act="chgStart" data-pair="${esc(pair)}">Start 60 seconds</button>
+            ${last ? `<strong>${last.record ? `${last.n} is a new best for this pair.` : `Saved ${last.n}. Your best is ${best}.`}</strong>` : ''}</div>
+          <p class="note">Both hands stay on the guitar. You get four clicks to set up, then count each clean change out loud. Three warning clicks and a double click mark the end, and you type your number in.</p>`
+        : run.phase === 'ask' ? `<div class="row" style="align-items:flex-end">
+            <label class="field" style="max-width:230px"><span class="label">Time. How many clean changes?</span><input type="number" id="chg-n" inputmode="numeric" min="0" max="200" autocomplete="off"></label>
+            <button type="button" class="btn primary" data-act="chgSave">Save</button><button type="button" class="btn quiet" data-act="chgStop">Discard</button></div>`
+        : `<div class="row"><strong id="chg-say" style="font-size:19px">${run.phase === 'in' ? 'Get your first chord ready.' : 'Go. Count each clean change out loud.'}</strong>
+            <button type="button" class="btn quiet" data-act="chgStop">Cancel</button></div>`}
       ${slow.length ? `<div class="stack tight"><span class="label">Your slowest pairs: work on these</span><div class="chips">${slow.map(([k, v]) => { const p = k.split(' ↔ '); return pickBtn(p[0], p[1], `${esc(P(k))} · ${v}`); }).join('')}</div></div>` : ''}
       ${untried.length ? `<div class="stack tight"><span class="label">Not measured yet</span><div class="chips">${untried.map(([a, b]) => pickBtn(a, b, esc(P(pairKey(a, b))))).join('')}</div></div>` : ''}`;
   }
@@ -271,29 +276,58 @@
   }
 
   /* ---------- One-minute changes ---------- */
-  function chgEnd(saveIt) {
+  /* The minute is hands-free: clicks count you in and out, and the player types in the number they counted. */
+  function chgEnd() {
     const run = U.chg;
     if (!run) return;
     clearInterval(run.timer);
     U.chg = null;
-    if (saveIt && run.count > (S.changes[run.pair] || 0)) { S.changes[run.pair] = run.count; W.save(); }
+  }
+  function chgTick(run) {
+    const show = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    if (run.phase === 'in') {
+      run.lead--;
+      if (run.lead > 0) { A.click(0, false); show('chg-left', run.lead); return; }
+      A.click(0, true);
+      run.phase = 'go';
+      show('chg-left', run.left); show('chg-left-label', 'seconds'); show('chg-say', 'Go. Count each clean change out loud.');
+      return;
+    }
+    run.left--;
+    show('chg-left', run.left);
+    if (run.left > 0 && run.left <= 3) A.click(0, false);
+    if (run.left <= 0) {
+      clearInterval(run.timer);
+      A.click(0, true); setTimeout(() => A.click(0, true), 180);
+      run.phase = 'ask';
+      W.render();
+      const n = document.getElementById('chg-n');
+      if (n) n.focus();
+    }
   }
   Object.assign(W.ACT, {
     chgStart(el) {
-      chgEnd(false);
-      const run = (U.chg = { left: 60, count: 0, pair: el.dataset.pair });
-      run.timer = setInterval(() => {
-        run.left--;
-        const e = document.getElementById('chg-left');
-        if (e) e.textContent = run.left;
-        if (run.left <= 0) { A.click(0, true); chgEnd(true); W.render(); }
-      }, 1000);
-      W.leave.push(() => chgEnd(false));
+      chgEnd();
+      const run = (U.chg = { phase: 'in', lead: 4, left: 60, pair: el.dataset.pair });
+      A.click(0, false);
+      run.timer = setInterval(() => chgTick(run), 1000);
+      if (!W.leave.includes(chgEnd)) W.leave.push(chgEnd);
       W.render();
     },
-    chgTap() { if (!U.chg) return; U.chg.count++; const e = document.getElementById('chg-count'); if (e) e.textContent = U.chg.count; },
-    chgStop() { chgEnd(false); W.render(); },
-    chgPick(el) { chgEnd(false); W.setPath(el.dataset.path + 'a', el.dataset.a); W.setPath(el.dataset.path + 'b', el.dataset.b); W.render(); },
+    chgSave() {
+      const run = U.chg, box = document.getElementById('chg-n');
+      if (!run || !box) return;
+      const n = Math.round(+box.value);
+      if (box.value === '' || !(n >= 0 && n <= 200)) { box.focus(); return; }
+      const before = changeBests()[run.pair] || 0;
+      if (n > before) S.changes[run.pair] = n;
+      U.chgLast = { pair: run.pair, n, record: n > before };
+      chgEnd();
+      W.logBlock('w');
+      W.render();
+    },
+    chgStop() { chgEnd(); W.render(); },
+    chgPick(el) { chgEnd(); W.setPath(el.dataset.path + 'a', el.dataset.a); W.setPath(el.dataset.path + 'b', el.dataset.b); W.render(); },
     seq(el) { A.sequence(el.dataset.chords.split(' ').map(T.parseChord).filter(Boolean)); },
     openLesson(el) { A.stop(); U.lesson = el.dataset.id; if (location.hash !== '#path') location.hash = 'path'; else W.render(); window.scrollTo(0, 0); },
     closeLesson() { A.stop(); U.lesson = null; W.render(); window.scrollTo(0, 0); },
@@ -498,5 +532,6 @@
   };
 
   W.ON.decodeText = function () { W.ACT.decodeGo(); };
+  document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.id === 'chg-n') W.ACT.chgSave(); });
   Object.assign(W, { keyChips, familyBlock, progList, capoWays, capoTable, KEY_ORDER, changesBlock });
 })();

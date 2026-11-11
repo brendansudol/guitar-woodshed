@@ -203,15 +203,25 @@
   let ccTimers = [];
   const ccClear = () => { ccTimers.forEach(clearTimeout); ccTimers = []; document.querySelectorAll('.cc-row.now').forEach((e) => e.classList.remove('now')); };
   const ROLE = { 0: 'root', 3: 'minor 3rd', 4: '3rd', 7: '5th', 10: '7th', 11: 'major 7th', 2: '2nd', 5: '4th', 9: '6th' };
+  /* Any chord in two taps: a root and a type. No typing with a guitar on your lap. */
+  const GYM_ROOTS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+  const GYM_TYPES = [['maj', 'Major'], ['min', 'Minor'], ['dom7', '7'], ['min7', 'm7'], ['maj7', 'maj7'], ['sus4', 'sus4'], ['sus2', 'sus2'], ['add9', 'add9'],
+    ['six', '6'], ['nine', '9'], ['min6', 'm6'], ['dim', 'dim'], ['m7b5', 'm7b5'], ['aug', 'aug'], ['five', '5'], ['dom7sus4', '7sus4']];
   function chordsTab() {
     const st = U.tr.chords;
     const names = S.known.filter((n) => T.parseChord(n));
     const list = names.length ? names : ['G', 'C', 'D', 'Em', 'Am'];
-    if (!list.includes(st.ch)) st.ch = list[0];
+    if (!T.parseChord(st.ch)) st.ch = list[0];
     const ch = T.parseChord(st.ch), v = T.voicing(ch), fingers = st.view !== 'ivl';
+    const mine = list.find((n) => { const k = T.parseChord(n); return k.root === ch.root && k.q === ch.q; }) || '';
+    const pick = (attr, val, label, on) => `<button type="button" class="chip${on ? ' on' : ''}" data-act="gymPick" ${attr}="${val}" aria-pressed="${on}">${esc(label)}</button>`;
     return `<section class="stack"><h2>Chord check</h2>
         <p class="note">A chord is only as good as its worst string. Hold the shape, then play each string on its own along with the app. A dead or buzzing string usually means a neighboring finger is leaning on it, or your fingertip isn’t close enough to the fret.</p>
-        ${chips(list, st.ch, 'set', 'data-path="tr.chords.ch"')}
+        <div class="stack tight"><span class="label">Your chords</span>${chips(list, mine, 'set', 'data-path="tr.chords.ch"')}</div>
+        <div class="stack tight"><span class="label">Or any chord: pick a root, then a type</span>
+          <div class="chips" role="group" aria-label="Root">${GYM_ROOTS.map((n, pc) => pick('data-root', pc, n, pc === ch.root)).join('')}</div>
+          <div class="chips" role="group" aria-label="Type">${GYM_TYPES.map(([q, l]) => pick('data-q', q, l, q === ch.q)).join('')}</div></div>
+        <div class="row" style="align-items:baseline;gap:12px"><span class="tile-name" style="font-size:44px">${esc(ch.name)}</span><span class="muted">${esc(T.Q[ch.q].label)}${mine ? '' : ' · not in your chords yet'}</span></div>
         <div class="stack tight"><span class="label">Numbers show</span>${chips([{ v: 'finger', l: 'Fingers' }, { v: 'ivl', l: 'Chord notes' }], st.view, 'set', 'data-path="tr.chords.view" data-keep="1"')}
           <span class="small muted">${fingers
             ? 'Which finger goes on each dot: 1 index, 2 middle, 3 ring, 4 little finger. Red is the root.'
@@ -236,6 +246,13 @@
   const leaveOnce = (fn) => { if (!W.leave.includes(fn)) W.leave.push(fn); };
   const workQuit = () => { A.stop(); U.tr.work.run = null; };
   Object.assign(W.ACT, {
+    gymPick(el) {
+      const cur = T.parseChord(U.tr.chords.ch) || T.parseChord('G');
+      const root = el.dataset.root != null ? +el.dataset.root : cur.root, q = el.dataset.q || cur.q;
+      A.stop(); ccClear();
+      U.tr.chords.ch = T.chord(root, q, GYM_ROOTS[root].includes('b')).name;
+      W.render();
+    },
     earMode(el) { earReset(); U.tr.ear.mode = el.dataset.v; W.render(); },
     ivlStart() { const st = U.tr.ear.ivl; stopTimer(); st.run = newRun(); st.run.q = ivlQ(st); leaveOnce(earReset); W.render(); ivlPlay(st.run.q); },
     ivlReplay() { const r = U.tr.ear.ivl.run; if (r && !r.done) ivlPlay(r.q); },

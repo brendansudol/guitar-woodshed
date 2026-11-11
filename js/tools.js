@@ -68,7 +68,7 @@
     const fresh = uniq.filter((c) => !W.isKnown(c));
     const diat = T.diatonic(an.key).map((x) => x.chord);
     const outside = uniq.filter((c) => !diat.some((d) => d.root === c.root && d.third === c.third));
-    const id = W.reg(scope, () => Object.assign({ chords: an.all, bpm: 96, pattern: 'folk', bass: true, drums: true, vel: 0.7 }, W.hl(scope)));
+    const id = W.reg(scope, () => Object.assign({ chords: an.all, bpm: 96, pattern: 'folk', bass: true, drums: true, vel: 0.7, countIn: true }, W.hl(scope, an.all)));
     const keyName = T.keyName(an.key);
     const del = U.songs.del === song.id;
     return `<article class="song" data-prog="${scope}">

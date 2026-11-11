@@ -39,7 +39,7 @@
   /* Player options for a picking loop. The grid is redrawn for each chord, because the thumb changes string. */
   function pickOpts(scope, chords, patKey, bpm, extra) {
     const root = () => document.querySelector(`[data-prog="${scope}"]`);
-    const hl = W.hl(scope), t0 = Date.now();
+    const hl = W.hl(scope, chords), t0 = Date.now();
     let step = 0;
     const mark = () => { const r = root(); if (r) r.querySelectorAll('[data-step]').forEach((el) => el.classList.toggle('now', +el.dataset.step === step)); };
     const draw = (i) => {
@@ -50,7 +50,7 @@
       if (t) t.innerHTML = thumbLine(chords[i], patKey);
     };
     return Object.assign({
-      chords, bpm, pick: patKey, vel: 0.85,
+      chords, bpm, pick: patKey, vel: 0.85, countIn: true, onCount: hl.onCount,
       onStep(s) { step = s; mark(); },
       onChord(i) { hl.onChord(i); draw(i); mark(); },
       onStop() {

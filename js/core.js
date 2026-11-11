@@ -154,6 +154,7 @@
       const t = b.querySelector('.btn-t');
       if (t) t.textContent = on ? 'Stop' : t.dataset.idle;
     });
+    keepAwake('play', !!A.player.id);
   }
   W.onPlayerChange = syncPlay;
   function go(hash) { if (location.hash === '#' + hash) render(); else location.hash = hash; }
@@ -167,12 +168,59 @@
   function getPath(path) { return path.split('.').reduce((o, k) => (o == null ? o : o[k]), U); }
   const coerce = (v) => (v === 'true' ? true : v === 'false' ? false : v !== '' && !isNaN(+v) ? +v : v);
 
-  /* Highlight helpers for whatever the player is doing */
-  const hl = (scope) => ({
-    onChord: (i) => document.querySelectorAll(`[data-prog="${scope}"] [data-ci]`).forEach((el) => el.classList.toggle('now', +el.dataset.ci === i)),
+  /* The now-playing bar: the current chord and the one after it, big enough to read from a music stand. */
+  function nowSet(big, sub, next) {
+    const bar = document.getElementById('nowbar');
+    if (!bar) return;
+    const rail = document.querySelector('.rail'), docked = rail && getComputedStyle(rail).position === 'fixed';
+    bar.style.left = !rail || docked ? '0px' : rail.offsetWidth + 'px';
+    bar.style.bottom = docked ? rail.offsetHeight + 'px' : '0px';
+    bar.querySelector('.nowbar-big').textContent = big;
+    bar.querySelector('.nowbar-sub').textContent = sub;
+    bar.querySelector('.nowbar-next').textContent = next ? 'then ' + next : '';
+    bar.hidden = false;
+    document.body.classList.add('now-on');
+  }
+  function nowHide() {
+    const bar = document.getElementById('nowbar');
+    if (bar) bar.hidden = true;
+    document.body.classList.remove('now-on');
+  }
+  /* Highlight helpers for whatever the player is doing. Pass the chords to also drive the now-playing bar. */
+  const hl = (scope, chords) => ({
+    onChord: (i) => {
+      document.querySelectorAll(`[data-prog="${scope}"] [data-ci]`).forEach((el) => el.classList.toggle('now', +el.dataset.ci === i));
+      if (chords) {
+        const next = chords.slice(i + 1).concat(chords.slice(0, i)).find((c) => c.name !== chords[i].name); // the next chord that is actually a change
+        nowSet(chords[i].name, 'now', next ? next.name : '');
+      }
+    },
     onStep: (step) => document.querySelectorAll(`[data-prog="${scope}"] .strum-cell`).forEach((el) => el.classList.toggle('now', +el.dataset.step === step)),
-    onStop: () => document.querySelectorAll(`[data-prog="${scope}"] .now`).forEach((el) => el.classList.remove('now')),
+    onCount: (n) => { if (chords) nowSet(String(n), 'count in', chords[0].name); },
+    onStop: () => { document.querySelectorAll(`[data-prog="${scope}"] .now`).forEach((el) => el.classList.remove('now')); if (chords) nowHide(); },
   });
+
+  /* Keep the screen on while something is playing or being timed: with both hands on a guitar nobody can tap the phone. */
+  const awake = { held: new Set(), lock: null, busy: false };
+  async function keepAwake(key, on, again = 0) {
+    if (key) { if (on) awake.held.add(key); else awake.held.delete(key); }
+    if (awake.busy || !navigator.wakeLock) return;
+    awake.busy = true;
+    let ok = true;
+    try {
+      if (awake.held.size && !awake.lock && document.visibilityState === 'visible') {
+        const lock = await navigator.wakeLock.request('screen');
+        awake.lock = lock;
+        lock.addEventListener('release', () => { if (awake.lock === lock) awake.lock = null; });
+      }
+      if (!awake.held.size && awake.lock) { const lock = awake.lock; awake.lock = null; await lock.release(); }
+    } catch (e) { ok = false; /* not allowed here (for example inside an embedded page): carry on without it */ }
+    awake.busy = false;
+    /* Something started or stopped while the browser was answering: settle once more. */
+    if (ok && again < 2 && !!awake.held.size !== !!awake.lock && document.visibilityState === 'visible') keepAwake('', false, again + 1);
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && awake.held.size) keepAwake(); }); // the browser drops the lock when the page is hidden
+  W.awake = awake;
   /* A row of chord tiles that lights up as the player moves through it. */
   function progStrip(id, chords, keyPc, o = {}) {
     return `<div class="tiles" data-prog="${R.esc(id)}">${chords.map((c, i) => R.chordTile(c, keyPc, { idx: i, cls: (o.mini ? 'mini' : '') + (o.markNew && !isKnown(c) ? ' new' : ''), box: o.box })).join('')}</div>`;
@@ -200,6 +248,7 @@
       else A.strumChord(ch);
     },
     play(el) { const f = W.plays[el.dataset.play]; if (f) A.toggle(el.dataset.play, f()); },
+    nowStop() { A.stop(); },
   });
   Object.assign(W.ON, {
     range(el) {
@@ -235,6 +284,6 @@
   document.addEventListener('submit', (e) => e.preventDefault());
   window.addEventListener('hashchange', render);
 
-  Object.assign(W, { save, render, go, reg, hl, progStrip, dayKey, practiced, streak, logBlock, parseSong, analyze, knownChords, isKnown, setPath, getPath });
+  Object.assign(W, { keepAwake, save, render, go, reg, hl, progStrip, dayKey, practiced, streak, logBlock, parseSong, analyze, knownChords, isKnown, setPath, getPath });
   W.boot = function () { render(); cloudInit(); };
 })();

@@ -112,7 +112,7 @@
     if (needle) needle.style.left = 50 + Math.max(-50, Math.min(50, far ? 0 : cents)) + '%';
     document.querySelectorAll('[data-act="refTone"]').forEach((b) => b.classList.toggle('heard', !far && +b.dataset.s === s));
   }
-  function tuneOff() { A.micStop(); A.toneStop(); clearTimeout(idleTimer); idleTimer = null; U.tune.listening = false; U.tune.ref = null; }
+  function tuneOff() { A.micStop(); A.toneStop(); clearTimeout(idleTimer); idleTimer = null; U.tune.listening = false; U.tune.ref = null; W.keepAwake('tuner', false); }
 
   W.VIEWS.tune = function () {
     const tu = U.tune, can = A.micAvailable() && !window.claude;
@@ -143,10 +143,11 @@
     },
     async micToggle() {
       const tu = U.tune;
-      if (tu.listening) { A.micStop(); tu.listening = false; W.render(); return; }
+      if (tu.listening) { A.micStop(); tu.listening = false; W.keepAwake('tuner', false); W.render(); return; }
       A.toneStop(); tu.ref = null; tu.err = '';
       try {
         await A.micStart(showPitch);
+        W.keepAwake('tuner', true);
         tu.listening = true;
         if (!W.leave.includes(tuneOff)) W.leave.push(tuneOff);
       } catch (e) {

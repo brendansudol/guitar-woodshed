@@ -381,7 +381,7 @@
     const chords = st.text.split(/[\s,|]+/).map(T.parseChord).filter(Boolean);
     const use = chords.length ? chords : [T.parseChord('G')];
     const det = T.detectKey(use).key;
-    const id = W.reg('lab', () => Object.assign({ chords: use, bpm: st.bpm, pattern: st.pat, click: st.click, drums: st.drums }, W.hl('lab')));
+    const id = W.reg('lab', () => Object.assign({ chords: use, bpm: st.bpm, pattern: st.pat, click: st.click, drums: st.drums, countIn: true }, W.hl('lab', use)));
     const tog = (k, l) => `<button type="button" class="chip${st[k] ? ' on' : ''}" data-act="toggle" data-path="tr.strum.${k}" aria-pressed="${st[k]}">${l}</button>`;
     return `<p class="lede">One motion, down on the numbers and up on the “&”s. A pattern is a choice of which strokes hit the strings. Mute the strings first, then add chords.</p>
       <div class="stack tight"><span class="label">Pattern</span>${chips(['fours', 'eighths', 'folk', 'faithful', 'push'].map((k) => ({ v: k, l: A.PATTERNS[k].name })), st.pat, 'set', 'data-path="tr.strum.pat"')}</div>

@@ -27,7 +27,7 @@
       const chords = T.progChords(p, key);
       const blues = p.id === 'blues';
       const sid = `${scope}-${p.id}`;
-      const id = W.reg(sid, () => Object.assign({ chords, bpm: blues ? 104 : 100, pattern: blues ? 'eighths' : 'folk', swing: blues ? 0.33 : 0, bass: true, drums: true, vel: 0.7 }, W.hl(sid)));
+      const id = W.reg(sid, () => Object.assign({ chords, bpm: blues ? 104 : 100, pattern: blues ? 'eighths' : 'folk', swing: blues ? 0.33 : 0, bass: true, drums: true, vel: 0.7, countIn: true }, W.hl(sid, chords)));
       return `<div class="stack tight" style="padding:14px 0;border-top:1px solid var(--line)">
         <div class="row between"><div class="stack tight"><h3>${esc(p.name)}</h3><span class="mono small muted">${esc(p.nums)}</span></div>${R.playBtn(id, 'Play along', 'sm')}</div>
         ${W.progStrip(sid, chords, key, { mini: true, markNew: true })}
@@ -166,7 +166,7 @@
       case 'transposer': {
         def('key', 7);
         const prog = T.PROGS.find((p) => p.id === w.prog), chords = T.progChords(prog, st.key);
-        const id = W.reg('w-tr', () => Object.assign({ chords, bpm: 96, pattern: 'folk', bass: true, drums: true, vel: 0.7 }, W.hl('w-tr')));
+        const id = W.reg('w-tr', () => Object.assign({ chords, bpm: 96, pattern: 'folk', bass: true, drums: true, vel: 0.7, countIn: true }, W.hl('w-tr', chords)));
         return `<div class="stack tight"><span class="label">The numbers never change</span>
             <div class="row">${chords.map((c) => R.degTag(T.numeral(c, st.key), T.degreeOf(c.root, st.key))).join('<span class="muted">–</span>')}</div></div>
           <div class="stack tight"><span class="label">Pick a key and the letters move</span>${keyChips(path + 'key', st.key)}</div>
@@ -189,7 +189,7 @@
         const pat = A.PATTERNS[st.pat];
         const key = 7, fam = T.diatonic(key);
         const chords = l.id === '4-1' ? [fam[0].chord] : [fam[0], fam[3], fam[4], fam[3]].map((x) => x.chord);
-        const id = W.reg('w-strum', () => Object.assign({ chords, bpm: st.bpm, pattern: st.pat, click: true }, W.hl('w-strum')));
+        const id = W.reg('w-strum', () => Object.assign({ chords, bpm: st.bpm, pattern: st.pat, click: true, countIn: true }, W.hl('w-strum', chords)));
         return `${w.patterns.length > 1 ? chips(w.patterns.map((k) => ({ v: k, l: A.PATTERNS[k].name })), st.pat, 'set', `data-path="${path}pat"`) : ''}
           <div class="stack" data-prog="w-strum">${R.strumGrid(st.pat)}
             <p class="note">${esc(pat.say)}</p>
@@ -249,7 +249,7 @@
         const typed = W.parseSong(st.text).flatMap((x) => x.chords);
         const chords = typed.length ? typed : 'G D Em C'.split(' ').map(T.parseChord);
         const key = T.detectKey(chords).key, match = T.matchProg(chords, key);
-        const id = W.reg('w-dec', () => Object.assign({ chords, bpm: 96, pattern: 'folk', bass: true, drums: true, vel: 0.7 }, W.hl('w-dec')));
+        const id = W.reg('w-dec', () => Object.assign({ chords, bpm: 96, pattern: 'folk', bass: true, drums: true, vel: 0.7, countIn: true }, W.hl('w-dec', chords)));
         const inBook = S.songs.some((s) => s.text.trim() === st.text.trim());
         const rows = S.songs.slice(0, 6).map((s) => {
           const an = W.analyze(s);
@@ -282,6 +282,7 @@
     if (!run) return;
     clearInterval(run.timer);
     U.chg = null;
+    W.keepAwake('changes', false);
   }
   function chgTick(run) {
     const show = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
@@ -311,6 +312,7 @@
       const run = (U.chg = { phase: 'in', lead: 4, left: 60, pair: el.dataset.pair });
       A.click(0, false);
       run.timer = setInterval(() => chgTick(run), 1000);
+      W.keepAwake('changes', true);
       if (!W.leave.includes(chgEnd)) W.leave.push(chgEnd);
       W.render();
     },

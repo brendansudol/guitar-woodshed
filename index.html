@@ -235,6 +235,17 @@ button.stage-row:hover span { text-decoration: underline; }
 
 /* Jam */
 .now-chord { font-family: var(--font-display); font-weight: 900; font-size: clamp(72px, 16vw, 132px); line-height: .82; }
+/* Now-playing bar: readable from a music stand */
+.nowbar { position: fixed; z-index: 25; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 20px;
+  padding: 14px max(20px, env(safe-area-inset-right, 0px)) 12px max(20px, env(safe-area-inset-left, 0px)); background: var(--fg); color: var(--bg); }
+.nowbar[hidden] { display: none; }
+.nowbar-big { min-width: 1.5em; font-family: var(--font-display); font-weight: 900; font-size: clamp(64px, 13vw, 108px); line-height: .82; }
+.nowbar-side { display: flex; flex-direction: column; gap: 4px; margin-right: auto; min-width: 0; }
+.nowbar-sub { font-family: var(--font-mono); font-size: 11px; letter-spacing: .09em; text-transform: uppercase; opacity: .7; }
+.nowbar-next { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 5vw, 38px); line-height: 1; opacity: .85; }
+.nowbar .btn { border-color: var(--bg); color: var(--bg); }
+.nowbar .btn:hover { background: var(--bg); color: var(--fg); }
+body.now-on .main { padding-bottom: 190px; }
 .beats { display: flex; gap: 6px; }
 .beats i { width: 14px; height: 14px; border-radius: 50%; background: var(--d0); }
 .beats i.now { background: var(--accent); }
@@ -351,6 +362,11 @@ button.barbox:hover { border-color: var(--fg); }
     </div>
   </aside>
   <main class="main" id="main"></main>
+  <div class="nowbar" id="nowbar" hidden aria-live="off">
+    <div class="nowbar-big"></div>
+    <div class="nowbar-side"><span class="nowbar-sub"></span><span class="nowbar-next"></span></div>
+    <button type="button" class="btn" data-act="nowStop">Stop</button>
+  </div>
 </div>
 
 <script src="js/theory.js"></script>

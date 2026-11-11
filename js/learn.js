@@ -150,6 +150,7 @@
               ${ch.third === 'min' ? '<p class="note">The b3 is the scale’s 3 lowered one fret. That one note makes the chord minor.</p>' : ''}
               <div class="row">${chips([{ v: 'ivl', l: 'Numbers' }, { v: 'note', l: 'Note names' }], st.lab, 'set', `data-path="${path}lab"`)}
               <button type="button" class="btn sm" data-act="strum" data-chord="${esc(ch.name)}">Strum it</button></div>
+              ${st.lab === 'ivl' ? '<p class="note">These numbers are the notes of the chord, not fingers. For fingerings, see the Chord Gym.</p>' : ''}
             </div>
           </div>`;
       }

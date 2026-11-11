@@ -7,7 +7,7 @@
 
   Object.assign(U.tr.ear, { mode: 'chord', ivl: { level: 1, run: null }, echo: { level: 1, run: null } });
   U.tr.work = { level: 1, run: null };
-  U.tr.chords = { ch: null, a: null, b: null };
+  U.tr.chords = { ch: null, a: null, b: null, view: 'finger' };
   const stat = (k) => (S.drills[k] = S.drills[k] || [0, 0]);
   const lifetime = (k) => { const [c, t] = stat(k); return t ? `<p class="note">Lifetime: ${c} of ${t} correct (${Math.round((c / t) * 100)}%).</p>` : ''; };
   const pluckAt = (midi, delay, string) => { const ctx = A.ensure(); if (ctx) A.pluck(midi, ctx.currentTime + 0.05 + delay, 0.9, string == null ? null : string); };
@@ -208,14 +208,18 @@
     const names = S.known.filter((n) => T.parseChord(n));
     const list = names.length ? names : ['G', 'C', 'D', 'Em', 'Am'];
     if (!list.includes(st.ch)) st.ch = list[0];
-    const ch = T.parseChord(st.ch), v = T.voicing(ch);
+    const ch = T.parseChord(st.ch), v = T.voicing(ch), fingers = st.view !== 'ivl';
     return `<section class="stack"><h2>Chord check</h2>
         <p class="note">A chord is only as good as its worst string. Hold the shape, then play each string on its own along with the app. A dead or buzzing string usually means a neighboring finger is leaning on it, or your fingertip isn’t close enough to the fret.</p>
         ${chips(list, st.ch, 'set', 'data-path="tr.chords.ch"')}
+        <div class="stack tight"><span class="label">Numbers show</span>${chips([{ v: 'finger', l: 'Fingers' }, { v: 'ivl', l: 'Chord notes' }], st.view, 'set', 'data-path="tr.chords.view" data-keep="1"')}
+          <span class="small muted">${fingers
+            ? 'Which finger goes on each dot: 1 index, 2 middle, 3 ring, 4 little finger. Red is the root.'
+            : 'Which note of the chord each string plays: 1 is the root, 3 the third, 5 the fifth. Each number keeps its color everywhere in the app.'}</span></div>
         <div class="row" style="gap:28px;align-items:flex-start">
-          <div style="width:170px;max-width:100%">${R.chordBox(ch, { tones: true, labels: 'ivl' }).replace('class="cbox"', 'class="cbox" style="width:100%"')}</div>
+          <div style="width:170px;max-width:100%">${R.chordBox(ch, fingers ? { labels: 'finger' } : { tones: true, labels: 'ivl' }).replace('class="cbox"', 'class="cbox" style="width:100%"')}</div>
           <div class="stack" style="flex:1;min-width:240px">
-            <div class="cc">${v.frets.map((f, s) => { const pc = (T.TUNING[s] + Math.max(f, 0)) % 12; return `<div class="cc-row" data-s="${s}"><b>${T.STRING_ORD[s]}</b><span>${f < 0 ? 'Don’t play it' : f === 0 ? 'Open' : 'Fret ' + f}</span><span class="muted">${f < 0 ? '' : T.noteName(pc, ch.flats) + ' · ' + (ROLE[T.mod(pc - ch.root)] || '')}</span></div>`; }).join('')}</div>
+            <div class="cc">${v.frets.map((f, s) => { const pc = (T.TUNING[s] + Math.max(f, 0)) % 12; return `<div class="cc-row" data-s="${s}"><b>${T.STRING_ORD[s]}</b><span>${f < 0 ? 'Don’t play it' : f === 0 ? 'Open' : 'Fret ' + f + (v.fingers[s] ? ', finger ' + v.fingers[s] : '')}</span><span class="muted">${f < 0 ? '' : T.noteName(pc, ch.flats) + ' · ' + (ROLE[T.mod(pc - ch.root)] || '')}</span></div>`; }).join('')}</div>
             <div class="row"><button type="button" class="btn primary" data-act="chordCheck" data-chord="${esc(ch.name)}"><span class="btn-ico" aria-hidden="true"></span>Play it string by string</button>
               <button type="button" class="btn" data-act="strum" data-chord="${esc(ch.name)}">Strum it</button></div>
           </div>

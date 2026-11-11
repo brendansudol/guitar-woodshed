@@ -64,6 +64,7 @@
       ${part(2, 'Chord boxes', `<div class="tiles">${[G, F, Csm].map((c) => R.chordTile(c, null, { box: true })).join('')}</div>`, [
         'A chord box is the neck stood upright: <strong>strings run top to bottom, thickest on the left</strong>. The heavy bar across the top is the nut.',
         'A dot is a fingertip. A small <strong>circle</strong> above a string means play it open. A <strong>×</strong> means don’t play that string.',
+        'Where the dots carry numbers, the screen says what they mean: <strong>fingers</strong> (1 index, 2 middle, 3 ring, 4 little finger) or the <strong>notes of the chord</strong> (1 root, 3 third, 5 fifth).',
         'A long bar across several strings is a <strong>barre</strong>: one finger laid flat across them.',
         '“4fr” beside a box means it starts at fret 4, not at the nut.',
         'The <strong>red</strong> dot is the root, the note the chord is named after. Tap a chord to hear it strummed.',

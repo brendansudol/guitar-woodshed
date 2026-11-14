@@ -62,7 +62,7 @@ Then open http://localhost:4173.
 | `js/drills.js` | Work It Out, interval and echo drills, Chord Gym. |
 | `js/finger.js` | Pick Lab and the demos for the fingerstyle side track. |
 | `js/home.js` | The homepage. |
-| `scripts/` | `dev.js` (local server), `build.js` (writes `dist/`), `wrap.js` (shared HTML wrapper), plus two sound tools described below. |
+| `scripts/` | `dev.js` (local server), `build.js` (writes `dist/`), `wrap.js` (shared HTML wrapper), plus two sound tools and the share image source described below. |
 
 `index.html` deliberately has no `<html>`, `<head>` or `<body>` tags so the same file can be published as a Claude artifact. `scripts/wrap.js` adds them for local preview and for the deployed site.
 
@@ -80,6 +80,18 @@ All audio is synthesized in the browser, so there are two tools for keeping it h
   ```
 
 Targets the current sound meets: every note within 2 cents of pitch, no clipped samples in any mix, and bass and drums sitting below the guitar.
+
+## The share image
+
+`share.png` is the 1200 × 630 picture shown when a link to the site is pasted into a message or a social post. `scripts/wrap.js` points the Open Graph and Twitter tags at it, and `scripts/build.js` copies it into `dist/`.
+
+It is drawn by `scripts/share-image.html`. To change it, edit that file and render it again with headless Chrome (macOS path shown):
+
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --force-device-scale-factor=1 --window-size=1200,630 --virtual-time-budget=8000 --screenshot="$PWD/share.png" "file://$PWD/scripts/share-image.html"
+```
+
+The tags use the site address set as `SITE` in `scripts/wrap.js`. Change it there if the site moves.
 
 ## Deploying
 

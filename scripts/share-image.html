@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- Source for share.png, the 1200 x 630 picture shown when a link to the site is shared.
+     To rebuild it after a change, see "The share image" in the README. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Guitar Woodshed share image</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Instrument+Sans:wght@700&display=swap">
+<style>
+  :root {
+    --bg: #eef1f2; --fg: #15202b; --accent: #d93a22;
+    --board: #2c1d16; --board-lit: #523729; --fret: #b4b8bc; --inlay: #e9e2d0; --string: #d9d3c3; --ring: #ffffff;
+    --d1: #dc3d26; --d1-ink: #ffffff; --d3: #f2c230; --d3-ink: #1b1410; --d4: #4fae6a; --d4-ink: #0d1a12;
+    --d5: #3d8fd1; --d5-ink: #06131f; --d7: #d667a8; --d7-ink: #1b1410;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body { background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased; position: relative; }
+  .top { padding: 46px 64px 0; }
+  .brand { font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 46px; line-height: .9; letter-spacing: .01em; text-transform: uppercase;
+    border-bottom: 3px solid var(--fg); padding-bottom: 14px; }
+  .brand span { color: var(--accent); }
+  h1 { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 130px; line-height: .9; letter-spacing: .003em; margin-top: 24px; }
+  h1 span { display: block; color: var(--accent); }
+  #neck { position: absolute; left: 0; bottom: 0; display: block; }
+  .lbl { font-family: 'Instrument Sans', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand">Wood<span>shed</span></div>
+    <h1>Learn the system, <span>not the song.</span></h1>
+  </div>
+  <svg id="neck" width="1200" height="236" viewBox="0 0 1200 236"></svg>
+<script>
+  // The Jam Room neck: A minor pentatonic across twelve frets, with box 1 (frets 5 to 8) lit.
+  // Colors follow the app: each dot is colored by its scale degree, and the root is ringed.
+  const W = 1200, H = 236, FW = 100, GAP = 35, TOP = (H - 5 * GAP) / 2;
+  const TUNING = [4, 9, 2, 7, 11, 4];                       // low E to high E, as pitch classes
+  const ROOT = 9;                                            // A
+  const DEG = { 0: ['1', 1], 3: ['♭3', 3], 5: ['4', 4], 7: ['5', 5], 10: ['♭7', 7] };
+  const WIN = [5, 8];
+  const x = (f) => (f - 0.5) * FW, y = (s) => TOP + (5 - s) * GAP;
+
+  let h = `<rect width="${W}" height="${H}" fill="var(--board)"/>`;
+  h += `<rect x="${(WIN[0] - 1) * FW}" width="${(WIN[1] - WIN[0] + 1) * FW}" height="${H}" fill="var(--board-lit)"/>`;
+  [3, 5, 7, 9].forEach((f) => { h += `<circle cx="${x(f)}" cy="${H / 2}" r="9" fill="var(--inlay)" opacity=".5"/>`; });
+  h += `<circle cx="${x(12)}" cy="${TOP + 1.5 * GAP}" r="9" fill="var(--inlay)" opacity=".5"/><circle cx="${x(12)}" cy="${TOP + 3.5 * GAP}" r="9" fill="var(--inlay)" opacity=".5"/>`;
+  for (let f = 1; f < 12; f++) h += `<line x1="${f * FW}" x2="${f * FW}" y1="0" y2="${H}" stroke="var(--fret)" stroke-width="3.5"/>`;
+  for (let s = 0; s < 6; s++) h += `<line x1="0" x2="${W}" y1="${y(s)}" y2="${y(s)}" stroke="var(--string)" stroke-width="${(4.4 - s * 0.55).toFixed(2)}"/>`;
+  for (let s = 0; s < 6; s++) for (let f = 1; f <= 12; f++) {
+    const d = DEG[(TUNING[s] + f - ROOT + 12) % 12];
+    if (!d) continue;
+    const lit = f >= WIN[0] && f <= WIN[1];
+    h += `<g opacity="${lit ? 1 : 0.34}">`;
+    if (lit && d[1] === 1) h += `<circle cx="${x(f)}" cy="${y(s)}" r="20.5" fill="none" stroke="var(--ring)" stroke-width="3"/>`;
+    h += `<circle cx="${x(f)}" cy="${y(s)}" r="15.5" fill="var(--d${d[1]})"/>`;
+    h += `<text class="lbl" x="${x(f)}" y="${y(s) + 5.5}" text-anchor="middle" fill="var(--d${d[1]}-ink)">${d[0]}</text></g>`;
+  }
+  document.getElementById('neck').innerHTML = h;
+</script>
+</body>
+</html>

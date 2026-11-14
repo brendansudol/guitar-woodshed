@@ -1,7 +1,7 @@
 /* App core: saved state, routing, event delegation, shared helpers. */
 (function () {
   const W = window.W, T = W.T, A = W.audio, R = W.R;
-  const KEY = 'woodshed.v1';
+  const KEY = 'woodshed.v1'; // the site's first name; kept so saved progress survives the rename
 
   const DEFAULT = () => ({
     v: 1, updated: 0, onboarded: false,
@@ -135,7 +135,7 @@
       lastView = v;
     }
     W.plays = {}; W.FB = {};
-    document.getElementById('main').innerHTML = `<div class="view"><div class="mobile-top"><a class="mobile-brand" href="#home">Wood<span>shed</span></a><span class="mobile-links"><a href="#tune" data-v="tune">Tuner</a><a href="#guide" data-v="guide">Guide</a></span></div>${W.VIEWS[v]()}</div>`;
+    document.getElementById('main').innerHTML = `<div class="view"><div class="mobile-top"><a class="mobile-brand" href="#home" aria-label="Capo Diem, home">Capo<span>Diem</span></a><span class="mobile-links"><a href="#tune" data-v="tune">Tuner</a><a href="#guide" data-v="guide">Guide</a></span></div>${W.VIEWS[v]()}</div>`;
     if (W.closeGloss) W.closeGloss();
     document.querySelectorAll('.rail a[data-v], .mobile-links a[data-v]').forEach((a) => {
       const on = a.dataset.v === v;

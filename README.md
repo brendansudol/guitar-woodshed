@@ -1,4 +1,6 @@
-# Guitar Woodshed
+# Capo Diem
+
+*Capo Diem* is a pun on *carpe diem*. The site started life as Guitar Woodshed, and the repository and the saved-progress key still carry that name.
 
 An interactive guitar course for people who can play a few songs and want to understand what they are playing. It teaches the system underneath the songs, in an order where each idea builds on the last, so new songs come faster and jamming with friends gets less scary.
 

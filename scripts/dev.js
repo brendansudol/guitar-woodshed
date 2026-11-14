@@ -15,4 +15,4 @@ http.createServer((req, res) => {
   if (!f.startsWith(root + path.sep) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end('Not found'); }
   res.writeHead(200, { 'content-type': types[path.extname(f)] || 'application/octet-stream', 'cache-control': 'no-store' });
   fs.createReadStream(f).pipe(res);
-}).listen(port, () => console.log('Guitar Woodshed running at http://localhost:' + port));
+}).listen(port, () => console.log('Capo Diem running at http://localhost:' + port));

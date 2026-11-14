@@ -4,7 +4,7 @@
 
 An interactive guitar course for people who can play a few songs and want to understand what they are playing. It teaches the system underneath the songs, in an order where each idea builds on the last, so new songs come faster and jamming with friends gets less scary.
 
-**Live site:** https://brendansudol.github.io/guitar-woodshed/
+**Live site:** https://capodiem.com
 
 ## What's in it
 
@@ -98,3 +98,5 @@ The tags use the site address set as `SITE` in `scripts/wrap.js`. Change it ther
 ## Deploying
 
 Every push to `main` runs `.github/workflows/pages.yml`, which builds `dist/` and publishes it to GitHub Pages.
+
+The site is served at `capodiem.com`. The domain is registered and its DNS is managed at Vercel; the records point at GitHub Pages (four `A` and four `AAAA` records for the bare domain, and a `CNAME` for `www`). The custom domain itself is set in the repository's Pages settings, not in a `CNAME` file, because the site deploys through a workflow. The old `github.io` address redirects to it.

@@ -2,7 +2,7 @@
 // artifact unchanged. This wraps it in a full HTML document for local preview and GitHub Pages.
 const DESCRIPTION = 'A free guitar course and a room full of practice tools: learn the neck and the number system, decode your songs, jam with a backing band in any key, and train your ear. No sign-up.';
 // Where the site is served. Link previews need absolute URLs, so the share image is addressed from here.
-const SITE = 'https://brendansudol.github.io/guitar-woodshed/';
+const SITE = 'https://capodiem.com/';
 const SHARE_ALT = 'Capo Diem. Learn the system, not the song. Below, a guitar neck with a scale marked in colored dots.';
 const ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%2315202b'/%3E%3Cg stroke='%23e9eef2' stroke-opacity='.6' stroke-width='1.7'%3E%3Cpath d='M9 4v24M13.7 4v24M18.3 4v24M23 4v24'/%3E%3C/g%3E%3Crect x='4.5' y='10' width='23' height='7' rx='3.5' fill='%23ff5a3d'/%3E%3C/svg%3E";
 

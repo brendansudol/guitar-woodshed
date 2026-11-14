@@ -6,6 +6,7 @@ An interactive guitar course for people who can play a few songs and want to und
 
 ## What's in it
 
+- **Home**: what first-time visitors see. A short pitch, the lessons drawn as a color-coded route you can enter at any stop, and a card for every tool with a small picture of it. Returning visitors land on Today, and the logo always leads back here.
 - **Today**: a 20-minute daily plan in four blocks (warm up, learn, songs, jam), with a streak. The warm-up rotates through neck, rhythm, ear and chord drills each day, and the song block is the biggest.
 - **Path**: 24 short lessons, each with a playable demo, an on-guitar assignment and a quick check. A day-one lesson decodes one of your own songs, then seven stages follow. Each stage ends with a "move on when" target tied to your drill scores, so finishing the reading is not the same as finishing the stage.
   1. The map (note names on the neck)
@@ -60,6 +61,7 @@ Then open http://localhost:4173.
 | `js/play.js` | Jam room and the original trainers. |
 | `js/drills.js` | Work It Out, interval and echo drills, Chord Gym. |
 | `js/finger.js` | Pick Lab and the demos for the fingerstyle side track. |
+| `js/home.js` | The homepage. |
 | `scripts/` | `dev.js` (local server), `build.js` (writes `dist/`), `wrap.js` (shared HTML wrapper), plus two sound tools described below. |
 
 `index.html` deliberately has no `<html>`, `<head>` or `<body>` tags so the same file can be published as a Claude artifact. `scripts/wrap.js` adds them for local preview and for the deployed site.

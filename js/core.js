@@ -124,7 +124,8 @@
   /* ---------- Routing and rendering ---------- */
   W.VIEWS = {}; W.ACT = {}; W.ON = {}; W.FB = {}; W.plays = {}; W.leave = [];
   let lastView = null;
-  const currentView = () => { const h = (location.hash || '#today').slice(1); return W.VIEWS[h] ? h : 'today'; };
+  /* With no address, a first-time visitor gets the homepage and a returning one gets today's session. */
+  const currentView = () => { const h = (location.hash || '').slice(1); return W.VIEWS[h] ? h : W.hasProgress && !W.hasProgress() && W.VIEWS.home ? 'home' : 'today'; };
   function render() {
     const v = currentView();
     if (v !== lastView) {
@@ -134,7 +135,7 @@
       lastView = v;
     }
     W.plays = {}; W.FB = {};
-    document.getElementById('main').innerHTML = `<div class="view"><div class="mobile-top"><a class="mobile-brand" href="#today">Wood<span>shed</span></a><span class="mobile-links"><a href="#tune" data-v="tune">Tuner</a><a href="#guide" data-v="guide">Guide</a></span></div>${W.VIEWS[v]()}</div>`;
+    document.getElementById('main').innerHTML = `<div class="view"><div class="mobile-top"><a class="mobile-brand" href="#home">Wood<span>shed</span></a><span class="mobile-links"><a href="#tune" data-v="tune">Tuner</a><a href="#guide" data-v="guide">Guide</a></span></div>${W.VIEWS[v]()}</div>`;
     if (W.closeGloss) W.closeGloss();
     document.querySelectorAll('.rail a[data-v], .mobile-links a[data-v]').forEach((a) => {
       const on = a.dataset.v === v;

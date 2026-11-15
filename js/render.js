@@ -7,7 +7,7 @@
 
   /* marks: { 's:f': { t: label, d: 1-7 degree color (0 = pearl), ring, dim, state } } */
   function fretboard(o) {
-    const frets = o.frets || 15, fw = 54, nutX = 48, top = 24, gap = 27;
+    const frets = o.frets || 15, fw = 54, nutX = 48, top = 24, gap = 31; // gap: a ring is 30 across, so ringed notes on neighboring strings clear each other
     const width = nutX + frets * fw + 14, height = top + 5 * gap + 40;
     const y = (s) => top + (5 - s) * gap;
     const x = (f) => (f === 0 ? nutX - 24 : nutX + (f - 0.5) * fw);
@@ -40,7 +40,7 @@
       const fill = m.state === 'right' ? 'var(--good)' : m.state === 'wrong' ? 'var(--bad)' : m.state === 'ask' ? 'var(--bg)' : m.d ? `var(--d${m.d})` : 'var(--pearl)';
       const ink = m.state === 'right' || m.state === 'wrong' ? '#fff' : m.state === 'ask' ? 'var(--fg)' : m.d ? `var(--d${m.d}-ink)` : 'var(--pearl-ink)';
       h += `<g opacity="${m.dim ? 0.3 : 1}" class="fb-mark${m.ring ? ' ringed' : ''}">`;
-      if (m.ring) h += `<circle cx="${cx}" cy="${cy}" r="15" fill="none" stroke="${f === 0 ? 'var(--fg)' : 'var(--ring)'}" stroke-width="2.5"/>`;
+      if (m.ring) h += `<circle cx="${cx}" cy="${cy}" r="14" fill="none" stroke="${f === 0 ? 'var(--fg)' : 'var(--ring)'}" stroke-width="2"/>`;
       h += `<circle cx="${cx}" cy="${cy}" r="11.5" fill="${fill}"${m.state === 'ask' ? ' stroke="var(--fg)" stroke-width="2.5"' : ''}/>`;
       if (m.t != null) h += `<text x="${cx}" y="${cy + 4}" text-anchor="middle" class="fb-label" fill="${ink}">${esc(P(m.t))}</text>`;
       h += `</g>`;

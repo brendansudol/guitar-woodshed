@@ -97,7 +97,7 @@
     return `<div class="home-top">
         <h1 class="home-h1">A guitar course and a room full of practice tools. <span>Learn the system, not the song.</span></h1>
         <div class="facts">
-          <div class="facts-list"><span><strong>${W.ALL.length}</strong> short lessons</span><span><strong>${TOOLS.length}</strong> tools</span><span><strong>12</strong> keys</span><span><strong>20</strong> minutes a day</span><span>free, no sign-up</span></div>
+          <div class="facts-list"><span><strong>${W.ALL.length}</strong> short lessons</span><span><strong>${TOOLS.length}</strong> tools</span><span><strong>12</strong> keys</span><span><strong>20</strong> minutes a day</span></div>
           <div class="row">${started
             ? '<button type="button" class="btn primary" data-act="go" data-hash="today">Open today’s session</button>'
             : '<button type="button" class="btn primary" data-act="openLesson" data-id="0-1">Start at the first stop</button>'}

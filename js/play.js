@@ -126,6 +126,7 @@
   W.VIEWS.jam = function () {
     const j = U.jam, s = jamSetup(), ci = A.player.id === 'jam' ? j.ci || 0 : 0;
     const blues = j.feel === 'blues';
+    Promise.resolve().then(showBox); // once this view is on the page, and before it is painted
     const hl = W.hl('jam');
     const id = W.reg('jam', () => {
       const t0 = Date.now();
@@ -195,7 +196,6 @@
       U.jam[k] = k === 'feel' ? v : +v;
       if (k === 'feel') { U.jam.prog = 0; U.jam.scale = FEELS[v].scales[0]; }
       W.render();
-      showBox();
     },
     jamMix(el) {
       const k = el.dataset.k;
@@ -208,7 +208,6 @@
       const v = el.dataset.v;
       if (v === 'neck') U.jam.pos = 'neck'; else { U.jam.pos = 'box'; U.jam.box = +v; }
       W.render();
-      showBox();
     },
     jamClear() { A.stop(); U.jam.custom = null; W.render(); },
     jamIn(el) { U.jam.custom = null; U.jam.feel = 'major'; U.jam.key = +el.dataset.key; U.jam.prog = 0; W.go('jam'); },

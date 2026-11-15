@@ -7,30 +7,32 @@
 
   /* marks: { 's:f': { t: label, d: 1-7 degree color (0 = pearl), ring, dim, state } } */
   function fretboard(o) {
-    const frets = o.frets || 15, fw = 54, nutX = 48, top = 24, gap = 31; // gap: a ring is 30 across, so ringed notes on neighboring strings clear each other
-    const width = nutX + frets * fw + 14, height = top + 5 * gap + 40;
+    const frets = o.frets || 15, fw = 54, nutX = 48, top = 24, gap = 31, pad = 16;
+    /* gap: a ring is 30 across, so ringed notes on neighboring strings clear each other. pad: wood beyond the outer strings, enough to hold a ring. */
+    const width = nutX + frets * fw + 14, height = top + 5 * gap + 44;
     const y = (s) => top + (5 - s) * gap;
     const x = (f) => (f === 0 ? nutX - 24 : nutX + (f - 0.5) * fw);
     const active = o.strings || [0, 1, 2, 3, 4, 5];
     const marks = o.marks || {};
     let h = `<svg class="fb" viewBox="0 0 ${width} ${height}" style="min-width:${Math.round(width * (o.scale || 0.82))}px" role="img" aria-label="${esc(o.label || 'Guitar fretboard')}">`;
-    h += `<rect x="${nutX}" y="${top - 12}" width="${frets * fw}" height="${5 * gap + 24}" rx="3" fill="var(--board)"/>`;
+    h += `<rect x="${nutX}" y="${top - pad}" width="${frets * fw}" height="${5 * gap + 2 * pad}" rx="3" fill="var(--board)"/>`;
     if (o.window) {
       const [lo, hi] = o.window;
       const x0 = lo === 0 ? nutX : nutX + (lo - 1) * fw, x1 = nutX + hi * fw;
-      h += `<rect x="${x0}" y="${top - 12}" width="${x1 - x0}" height="${5 * gap + 24}" fill="var(--board-lit)" class="fb-win"/>`;
+      h += `<rect x="${x0}" y="${top - pad}" width="${x1 - x0}" height="${5 * gap + 2 * pad}" fill="var(--board-lit)" class="fb-win"/>`;
     }
-    [3, 5, 7, 9, 15].filter((f) => f <= frets).forEach((f) => { h += `<circle cx="${x(f)}" cy="${top + 2.5 * gap}" r="6" fill="var(--inlay)" opacity=".55"/>`; });
-    if (frets >= 12) h += `<circle cx="${x(12)}" cy="${top + 1.5 * gap}" r="6" fill="var(--inlay)" opacity=".55"/><circle cx="${x(12)}" cy="${top + 3.5 * gap}" r="6" fill="var(--inlay)" opacity=".55"/>`;
-    for (let f = 1; f <= frets; f++) h += `<line x1="${nutX + f * fw}" x2="${nutX + f * fw}" y1="${top - 12}" y2="${top + 5 * gap + 12}" stroke="var(--fret)" stroke-width="2.2"/>`;
-    h += `<rect x="${nutX - 4}" y="${top - 12}" width="6" height="${5 * gap + 24}" fill="var(--nut)"/>`;
+    /* Fret markers sit between two strings and are small enough that a note on either side leaves them whole. */
+    [3, 5, 7, 9, 15].filter((f) => f <= frets).forEach((f) => { h += `<circle cx="${x(f)}" cy="${top + 2.5 * gap}" r="4.5" fill="var(--inlay)" opacity=".55"/>`; });
+    if (frets >= 12) h += `<circle cx="${x(12)}" cy="${top + 1.5 * gap}" r="4.5" fill="var(--inlay)" opacity=".55"/><circle cx="${x(12)}" cy="${top + 3.5 * gap}" r="4.5" fill="var(--inlay)" opacity=".55"/>`;
+    for (let f = 1; f <= frets; f++) h += `<line x1="${nutX + f * fw}" x2="${nutX + f * fw}" y1="${top - pad}" y2="${top + 5 * gap + pad}" stroke="var(--fret)" stroke-width="2.2"/>`;
+    h += `<rect x="${nutX - 4}" y="${top - pad}" width="6" height="${5 * gap + 2 * pad}" fill="var(--nut)"/>`;
     for (let s = 0; s < 6; s++) {
       const on = active.includes(s);
       h += `<line x1="${nutX}" x2="${nutX + frets * fw}" y1="${y(s)}" y2="${y(s)}" stroke="var(--string)" stroke-width="${(3.1 - s * 0.38).toFixed(2)}" opacity="${on ? 1 : 0.28}"/>`;
     }
     for (let f = 1; f <= frets; f++) {
       const key = [3, 5, 7, 9, 12, 15].includes(f);
-      h += `<text x="${x(f)}" y="${top + 5 * gap + 31}" text-anchor="middle" class="fb-num${key ? ' key' : ''}">${f}</text>`;
+      h += `<text x="${x(f)}" y="${top + 5 * gap + 35}" text-anchor="middle" class="fb-num${key ? ' key' : ''}">${f}</text>`;
     }
     if (!o.noStringNames) for (let s = 0; s < 6; s++) if (!marks[s + ':0']) h += `<text x="${nutX - 24}" y="${y(s) + 4}" text-anchor="middle" class="fb-open" opacity="${active.includes(s) ? 0.75 : 0.3}">${T.SHARP[T.TUNING[s] % 12]}</text>`;
     Object.keys(marks).forEach((k) => {

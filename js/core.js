@@ -12,6 +12,7 @@
       { id: 'ex3', example: true, title: 'Knockin’ on Heaven’s Door', artist: 'Bob Dylan', key: null, text: 'Verse: G D Am Am\nG D C C' },
     ],
     lessons: {}, prac: {}, log: {}, changes: {}, goals: {}, guideSeen: false,
+    neck: null, // 'light' or 'dark' once the player has used the switch on a neck; until then it follows the page
     drills: { notes: {}, keys: [0, 0], ear: [0, 0], ivl: [0, 0], echo: [0, 0], work: [0, 0], best: {} },
   });
 
@@ -123,6 +124,8 @@
 
   /* ---------- Routing and rendering ---------- */
   W.VIEWS = {}; W.ACT = {}; W.ON = {}; W.FB = {}; W.plays = {}; W.leave = [];
+  /* The neck's paper or wood. The styles do the drawing; this only says whether the player has chosen. */
+  function neckTone() { const r = document.documentElement; if (S.neck) r.setAttribute('data-neck', S.neck); else r.removeAttribute('data-neck'); }
   let lastView = null;
   /* With no address, a first-time visitor gets the homepage and a returning one gets today's session. */
   const currentView = () => { const h = (location.hash || '').slice(1); return W.VIEWS[h] ? h : W.hasProgress && !W.hasProgress() && W.VIEWS.home ? 'home' : 'today'; };
@@ -135,6 +138,7 @@
       lastView = v;
     }
     W.plays = {}; W.FB = {};
+    neckTone();
     document.getElementById('main').innerHTML = `<div class="view"><div class="mobile-top"><a class="mobile-brand" href="#home" aria-label="Capo Diem, home">Capo<span>Diem</span></a><span class="mobile-links"><a href="#tune" data-v="tune">Tuner</a><a href="#guide" data-v="guide">Guide</a></span></div>${W.VIEWS[v]()}</div>`;
     if (W.closeGloss) W.closeGloss();
     document.querySelectorAll('.rail a[data-v], .mobile-links a[data-v]').forEach((a) => {
@@ -250,6 +254,10 @@
     },
     play(el) { const f = W.plays[el.dataset.play]; if (f) A.toggle(el.dataset.play, f()); },
     nowStop() { A.stop(); },
+    neckTone() {
+      S.neck = getComputedStyle(document.documentElement).getPropertyValue('--neck').trim() === 'dark' ? 'light' : 'dark';
+      neckTone(); save();
+    },
   });
   Object.assign(W.ON, {
     range(el) {

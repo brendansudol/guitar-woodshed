@@ -34,16 +34,16 @@
     const x = { 5: 60, 7: 220, 8: 300 }, y = [177, 146, 115, 84, 53, 22]; // strings, low E first
     const dots = [[0, 5, 1, 1], [0, 8, 3], [1, 5, 4], [1, 7, 5], [2, 5, 7], [2, 7, 1, 1], [3, 5, 3], [3, 7, 4], [4, 5, 5], [4, 8, 7], [5, 5, 1, 1], [5, 8, 3]];
     return `<svg class="mini-neck" viewBox="0 0 360 196" aria-hidden="true">
-      <rect x="20" y="8" width="320" height="180" rx="3" fill="var(--board)"/>
+      <rect x="20" y="8" width="320" height="180" rx="3" fill="var(--board)" stroke="var(--board-edge)" stroke-width="1.5"/>
       ${[20, 100, 180, 260, 340].map((fx) => `<line x1="${fx}" x2="${fx}" y1="8" y2="188" stroke="var(--fret)" stroke-width="2.2"/>`).join('')}
       ${y.map((sy, s) => `<line x1="20" x2="340" y1="${sy}" y2="${sy}" stroke="var(--string)" stroke-width="${(3.4 - s * 0.44).toFixed(1)}"/>`).join('')}
-      ${dots.map(([s, f, d, ring]) => `${ring ? `<circle cx="${x[f]}" cy="${y[s]}" r="15.5" fill="none" stroke="var(--ring)" stroke-width="2.4"/>` : ''}<circle cx="${x[f]}" cy="${y[s]}" r="12" fill="var(--d${d})"/>`).join('')}
+      ${dots.map(([s, f, d, ring]) => `${ring ? `<circle cx="${x[f]}" cy="${y[s]}" r="15.5" fill="none" stroke="var(--ring)" stroke-width="2.4"/>` : ''}<circle cx="${x[f]}" cy="${y[s]}" r="12" fill="var(--d${d})" stroke="var(--dot-edge)"/>`).join('')}
     </svg>`;
   }
   function miniNotes() {
-    const dot = (cx, cy, name, fill, ink) => `<circle cx="${cx}" cy="${cy}" r="13" fill="${fill}"/><text x="${cx}" y="${cy + 4.5}" text-anchor="middle" fill="${ink}">${name}</text>`;
+    const dot = (cx, cy, name, fill, ink) => `<circle cx="${cx}" cy="${cy}" r="13" fill="${fill}" stroke="var(--dot-edge)"/><text x="${cx}" y="${cy + 4.5}" text-anchor="middle" fill="${ink}">${name}</text>`;
     return `<svg class="mini-neck" viewBox="0 0 320 124" aria-hidden="true" style="font: 700 12px var(--font-body)">
-      <rect x="16" y="14" width="288" height="96" rx="3" fill="var(--board)"/>
+      <rect x="16" y="14" width="288" height="96" rx="3" fill="var(--board)" stroke="var(--board-edge)" stroke-width="1.5"/>
       ${[52, 88, 124, 160, 196, 232, 268].map((fx) => `<line x1="${fx}" x2="${fx}" y1="14" y2="110" stroke="var(--fret)" stroke-width="2"/>`).join('')}
       <rect x="13" y="14" width="6" height="96" fill="var(--nut)"/>
       <line x1="16" x2="304" y1="44" y2="44" stroke="var(--string)" stroke-width="2.9"/><line x1="16" x2="304" y1="80" y2="80" stroke="var(--string)" stroke-width="3.4"/>

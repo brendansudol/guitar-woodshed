@@ -14,8 +14,8 @@
     const x = (f) => (f === 0 ? nutX - 24 : nutX + (f - 0.5) * fw);
     const active = o.strings || [0, 1, 2, 3, 4, 5];
     const marks = o.marks || {};
-    let h = `<svg class="fb" viewBox="0 0 ${width} ${height}" style="min-width:${Math.round(width * (o.scale || 0.82))}px" role="img" aria-label="${esc(o.label || 'Guitar fretboard')}">`;
-    h += `<rect x="${nutX}" y="${top - pad}" width="${frets * fw}" height="${5 * gap + 2 * pad}" rx="3" fill="var(--board)"/>`;
+    let h = `<svg class="fb" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(o.label || 'Guitar fretboard')}">`;
+    h += `<rect x="${nutX}" y="${top - pad}" width="${frets * fw}" height="${5 * gap + 2 * pad}" rx="3" fill="var(--board)" stroke="var(--board-edge)" stroke-width="1.5"/>`;
     if (o.window) {
       const [lo, hi] = o.window;
       const x0 = lo === 0 ? nutX : nutX + (lo - 1) * fw, x1 = nutX + hi * fw;
@@ -39,11 +39,12 @@
       const m = marks[k]; const [s, f] = k.split(':').map(Number);
       if (f > frets) return;
       const cx = x(f), cy = y(s);
-      const fill = m.state === 'right' ? 'var(--good)' : m.state === 'wrong' ? 'var(--bad)' : m.state === 'ask' ? 'var(--bg)' : m.d ? `var(--d${m.d})` : 'var(--pearl)';
-      const ink = m.state === 'right' || m.state === 'wrong' ? '#fff' : m.state === 'ask' ? 'var(--fg)' : m.d ? `var(--d${m.d}-ink)` : 'var(--pearl-ink)';
+      /* An open string's dot sits beside the neck, on the page, so a plain one takes the page's colors, not the board's. */
+      const fill = m.state === 'right' ? 'var(--good)' : m.state === 'wrong' ? 'var(--bad)' : m.state === 'ask' ? 'var(--bg)' : m.d ? `var(--d${m.d})` : f === 0 ? 'var(--fg)' : 'var(--pearl)';
+      const ink = m.state === 'right' || m.state === 'wrong' ? '#fff' : m.state === 'ask' ? 'var(--fg)' : m.d ? `var(--d${m.d}-ink)` : f === 0 ? 'var(--bg)' : 'var(--pearl-ink)';
       h += `<g opacity="${m.dim ? 0.3 : 1}" class="fb-mark${m.ring ? ' ringed' : ''}">`;
       if (m.ring) h += `<circle cx="${cx}" cy="${cy}" r="14" fill="none" stroke="${f === 0 ? 'var(--fg)' : 'var(--ring)'}" stroke-width="2"/>`;
-      h += `<circle cx="${cx}" cy="${cy}" r="11.5" fill="${fill}"${m.state === 'ask' ? ' stroke="var(--fg)" stroke-width="2.5"' : ''}/>`;
+      h += `<circle cx="${cx}" cy="${cy}" r="11.5" fill="${fill}"${m.state === 'ask' ? ' stroke="var(--fg)" stroke-width="2.5"' : ' stroke="var(--dot-edge)"'}/>`;
       if (m.t != null) h += `<text x="${cx}" y="${cy + 4}" text-anchor="middle" class="fb-label" fill="${ink}">${esc(P(m.t))}</text>`;
       h += `</g>`;
     });
@@ -53,7 +54,8 @@
         h += `<rect class="fb-hit" data-fb="${o.id}" data-s="${s}" data-f="${f}" x="${rx}" y="${y(s) - gap / 2}" width="${f === 0 ? nutX : fw}" height="${gap}" fill="transparent"/>`;
       }
     }
-    return `<div class="fb-wrap">${h}</svg></div>`;
+    /* The inner box is as wide as the drawing, so the switch can stay at the left edge however far the neck is scrolled. */
+    return `<div class="fb-wrap"><div style="min-width:${Math.round(width * (o.scale || 0.82))}px">${h}</svg><button type="button" class="fb-tone" data-act="neckTone" title="Light or dark neck" aria-label="Switch the neck between light and dark"></button></div></div>`;
   }
 
   /* Build marks for a set of pitch classes. label: 'note' | 'degree'. */

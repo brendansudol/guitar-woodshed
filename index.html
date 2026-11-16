@@ -7,8 +7,10 @@
 :root {
   --bg: #eef1f2; --surface: #fafbfb; --sunk: #e3e8ea; --line: #d2d9de; --line-strong: #98a4ae;
   --fg: #15202b; --muted: #566370; --accent: #d93a22; --accent-ink: #ffffff;
-  --board: #2c1d16; --board-lit: #523729; --fret: #b4b8bc; --nut: #ece6d6; --inlay: #e9e2d0; --string: #d9d3c3;
-  --ring: #ffffff; --pearl: #ece6d6; --pearl-ink: #1b1410;
+  /* The neck is drawn on white paper or on dark wood. It starts out matching the page; the small switch on any neck
+     sets data-neck, and from then on the choice is the player's, whatever the page does. */
+  --neck: light; --board: #fbfcfc; --board-lit: #e2e8ec; --board-edge: #98a4ae; --fret: #9aa4ad; --nut: #15202b; --inlay: #7c8893;
+  --string: #6c7680; --ring: #15202b; --pearl: #15202b; --pearl-ink: #f1f4f5; --board-hover: rgba(21, 32, 43, .08); --dot-edge: rgba(21, 32, 43, .28);
   --d1: #dc3d26; --d1-ink: #ffffff; --d2: #f08a24; --d2-ink: #1b1410; --d3: #f2c230; --d3-ink: #1b1410;
   --d4: #4fae6a; --d4-ink: #0d1a12; --d5: #3d8fd1; --d5-ink: #06131f; --d6: #7a5fd0; --d6-ink: #ffffff;
   --d7: #d667a8; --d7-ink: #1b1410; --d0: #c9d1d6; --d0-ink: #15202b;
@@ -21,13 +23,25 @@
   :root:not([data-theme="light"]) {
     --bg: #0f161d; --surface: #161f29; --sunk: #0a1016; --line: #263340; --line-strong: #5a6a7a;
     --fg: #e9eef2; --muted: #96a4b1; --accent: #ff5a3d; --accent-ink: #160905;
-    --board: #261a14; --board-lit: #4a3125; --d0: #2c3a47; --d0-ink: #e9eef2; color-scheme: dark;
+    --neck: dark; --board: #261a14; --board-lit: #4a3125; --board-edge: transparent; --fret: #b4b8bc; --nut: #ece6d6; --inlay: #e9e2d0;
+    --string: #d9d3c3; --ring: #ffffff; --pearl: #ece6d6; --pearl-ink: #1b1410; --board-hover: rgba(255, 255, 255, .14); --dot-edge: transparent;
+    --d0: #2c3a47; --d0-ink: #e9eef2; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0f161d; --surface: #161f29; --sunk: #0a1016; --line: #263340; --line-strong: #5a6a7a;
   --fg: #e9eef2; --muted: #96a4b1; --accent: #ff5a3d; --accent-ink: #160905;
-  --board: #261a14; --board-lit: #4a3125; --d0: #2c3a47; --d0-ink: #e9eef2; color-scheme: dark;
+  --neck: dark; --board: #261a14; --board-lit: #4a3125; --board-edge: transparent; --fret: #b4b8bc; --nut: #ece6d6; --inlay: #e9e2d0;
+  --string: #d9d3c3; --ring: #ffffff; --pearl: #ece6d6; --pearl-ink: #1b1410; --board-hover: rgba(255, 255, 255, .14); --dot-edge: transparent;
+  --d0: #2c3a47; --d0-ink: #e9eef2; color-scheme: dark;
+}
+:root[data-neck="light"] {
+  --neck: light; --board: #fbfcfc; --board-lit: #e2e8ec; --board-edge: #98a4ae; --fret: #9aa4ad; --nut: #15202b; --inlay: #7c8893;
+  --string: #6c7680; --ring: #15202b; --pearl: #15202b; --pearl-ink: #f1f4f5; --board-hover: rgba(21, 32, 43, .08); --dot-edge: rgba(21, 32, 43, .28);
+}
+:root[data-neck="dark"] {
+  --neck: dark; --board: #261a14; --board-lit: #4a3125; --board-edge: transparent; --fret: #b4b8bc; --nut: #ece6d6; --inlay: #e9e2d0;
+  --string: #d9d3c3; --ring: #ffffff; --pearl: #ece6d6; --pearl-ink: #1b1410; --board-hover: rgba(255, 255, 255, .14); --dot-edge: transparent;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -161,12 +175,16 @@ select { width: auto; padding: 6px 9px; }
 /* Fretboard */
 .fb-wrap { overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
 .fb { display: block; width: 100%; height: auto; }
+/* The paper or wood switch: a half-and-half disc tucked under the open strings, which stays put while the neck scrolls. */
+.fb-tone { position: sticky; left: 2px; display: block; width: 22px; height: 22px; margin-top: -23px; padding: 0; border: 1px solid var(--line-strong);
+  border-radius: 50%; background: linear-gradient(90deg, var(--muted) 50%, var(--bg) 50%); cursor: pointer; }
+.fb-tone:hover, .fb-tone:focus-visible { border-color: var(--fg); background: linear-gradient(90deg, var(--fg) 50%, var(--bg) 50%); }
 .fb-num { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted); opacity: .6; }
 .fb-num.key { fill: var(--fg); opacity: 1; font-weight: 600; }
 .fb-open { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
 .fb-label { font-family: var(--font-body); font-size: 10.5px; font-weight: 700; pointer-events: none; }
 .fb-hit { cursor: pointer; }
-.fb-hit:hover { fill: rgba(255, 255, 255, .14); }
+.fb-hit:hover { fill: var(--board-hover); }
 .fb-mark { pointer-events: none; }
 
 /* Strum grid */
